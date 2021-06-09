@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+      {
+          "name": "fc/demo/test-function",
+          "type": "node",
+          "request": "attach",
+          "address": "localhost",
+          "port": 3000,
+          "localRoot": "/Users/zqf/Documents/git_proj/devsapp/component/fc-local-invoke/example/event-function/code",
+          "remoteRoot": "/code",
+          "protocol": "inspector",
+          "stopOnEntry": false
+      }
+  ]
+}
