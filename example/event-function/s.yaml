@@ -23,3 +23,15 @@ services:
         instanceType: e1
         environmentVariables:
           testEnv: true
+      triggers:
+        - name: ossTrigger
+          type: oss
+          config:
+            bucketName: fassdemo
+            events:
+              - oss:ObjectCreated:*
+              - oss:ObjectRemoved:DeleteObject
+            filter:
+              Key:
+                Prefix: source/
+                Suffix: .png
