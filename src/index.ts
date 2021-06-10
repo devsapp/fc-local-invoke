@@ -11,7 +11,7 @@ import { detectNasBaseDir, updateCodeUriWithBuildPath } from './lib/devs';
 import { getDebugOptions } from './lib/debug';
 import * as path from 'path';
 import { ensureFilesModified, eventPriority } from './lib/utils/file';
-import { findHttpTrigger, parseDomainRoutePath, getRoutePathsByDomainPath, checkCustomDomainConfig } from './lib/definition';
+import { findHttpTrigger, parseDomainRoutePath, getRoutePathsByDomainPath, checkCustomDomainConfig, includeHttpTrigger } from './lib/definition';
 import { ensureTmpDir } from './lib/utils/path';
 import EventStart from './lib/invoke/event-start';
 import { showTipsWithDomainIfNecessary } from './lib/utils/tips';
@@ -74,6 +74,7 @@ export default class FcLocalInvokeComponent extends BaseComponent {
     const parsedArgs: {[key: string]: any} = core.commandParse({ args }, {
       boolean: ['help'],
       alias: { help: 'h' } });
+
     const argsData: any = parsedArgs?.data || {};
     if (argsData?.help) {
       return {
@@ -243,8 +244,8 @@ export default class FcLocalInvokeComponent extends BaseComponent {
         status: 'failed'
       };
     }
-    if (!_.isEmpty(triggerConfigList)) {
-      logger.error(`Please local invoke event function with 'invoke' method in fc-local-invoke component.`);
+    if (!_.isEmpty(triggerConfigList) && includeHttpTrigger(triggerConfigList)) {
+      logger.error(`Please local invoke non-http function with 'invoke' method in fc-local-invoke component.`);
       return {
         status: 'failed'
       };

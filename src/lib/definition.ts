@@ -94,3 +94,10 @@ export function checkCustomDomainConfig(serviceName: string, functionName: strin
     throw new Error(`can't find ${serviceName}/${functionName} in routeConfigs under domain: ${domainName}.`);
   }
 }
+
+export function includeHttpTrigger(triggerConfigList: TriggerConfig[]): boolean {
+  for (const triggerConfig of triggerConfigList) {
+    if (triggerConfig.type === 'http') { return true; }
+  }
+  return false;
+}

@@ -13,3 +13,4 @@ export declare function findHttpTrigger(triggerConfigList: TriggerConfig[]): Tri
 export declare function parseDomainRoutePath(domainRoutePath: string): any;
 export declare function getRoutePathsByDomainPath(customDomainConfigList: CustomDomainConfig[], domainName: string, routePath: string): string[];
 export declare function checkCustomDomainConfig(serviceName: string, functionName: string, customDomainConfigList: CustomDomainConfig[], domainName: string): void;
+export declare function includeHttpTrigger(triggerConfigList: TriggerConfig[]): boolean;
