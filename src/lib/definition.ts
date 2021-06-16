@@ -4,6 +4,7 @@ import { CustomDomainConfig, RouteConfig } from './interface/fc-custom-domain';
 import * as _ from 'lodash';
 import logger from '../common/logger';
 import yaml from 'js-yaml';
+import StdoutFormatter from './component/stdout-formatter';
 
 export function isNasAutoConfig(nasConfig: NasConfig | string): boolean {
   if (_.isString(nasConfig) && nasConfig.toLowerCase() === 'auto') { return true; }
@@ -30,7 +31,7 @@ export function getUserIdAndGroupId(nasConfig: NasConfig | string) {
 export function findHttpTrigger(triggerConfigList: TriggerConfig[]): TriggerConfig {
   for (const triggerConfig of triggerConfigList) {
     if (triggerConfig.type === 'http') {
-      logger.info(`Trigger for start is:\n${yaml.dump(triggerConfig)}`);
+      logger.info(StdoutFormatter.stdoutFormatter.using('trigger for start', yaml.dump(triggerConfig)));
       return triggerConfig;
     }
   }

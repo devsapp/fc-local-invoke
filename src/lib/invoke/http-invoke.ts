@@ -55,7 +55,7 @@ export default class HttpInvoke extends Invoke {
         return;
       }
 
-      logger.info(`detect code changes, file is ${name}, event is ${evt}, auto reloading...`);
+      logger.info(`Detect code changes, file is ${name}, event is ${evt}, auto reloading...`);
 
       oldRunner = this.runner;
 
@@ -65,7 +65,7 @@ export default class HttpInvoke extends Invoke {
 
       setTimeout(() => {
         this.init().then(() => {
-          logger.info('reloading success, stop old container background...');
+          logger.info('Reloading success, stop old container background...');
           done();
         });
       }, 500); // for mvn, jar will be writen done after a while
@@ -79,11 +79,11 @@ export default class HttpInvoke extends Invoke {
         logger.error(`stop container error, reason is ${reason}`);
       }).finally(() => {
         // release lock
-        logger.info('stopping old container successfully\n');
+        logger.info('Stopping old container successfully\n');
 
         if (tmpCodeDir) {
           rimraf.sync(tmpCodeDir);
-          logger.info(`clean tmp code dir ${tmpCodeDir} successfully.\n`);
+          logger.info(`Clean tmp code dir ${tmpCodeDir} successfully.\n`);
         }
       });
     });
