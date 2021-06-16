@@ -5,6 +5,7 @@ import { DEFAULT_BUILD_ARTIFACTS_PATH_SUFFIX } from '../devs';
 import * as path from 'path';
 import logger from '../../common/logger';
 import { getStdin } from './stdin';
+import StdoutFormatter from '../component/stdout-formatter';
 
 export function readLines(fileName): Promise<string[]> {
   return new Promise((resolve, reject) => {
@@ -72,7 +73,7 @@ export async function eventPriority(argsData: any): Promise<string> {
   } else if (argsData['event-file']) {
     eventFile = path.resolve(process.cwd(), argsData['event-file']);
   } else if (argsData.event && fs.pathExistsSync(argsData.event)) {
-    logger.warning(`Warning: Using -e to specify the event file path will be replaced by -f in the future.`);
+    logger.warning(StdoutFormatter.stdoutFormatter.warn('-e ${eventFile}', 'using -e to specify the event file path will be replaced by -f in the future.'));
     eventFile = path.resolve(process.cwd(), argsData.event);
   }
 

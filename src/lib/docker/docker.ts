@@ -68,7 +68,7 @@ function waitingForContainerStopped(): any {
 
     stopping = true;
 
-    logger.info(`\nreceived canncel request, stopping running containers.....`);
+    logger.info(`\nReceived canncel request, stopping running containers.....`);
 
     const jobs: Array<any> = [];
     for (let container of containers) {
@@ -77,7 +77,7 @@ function waitingForContainerStopped(): any {
           container.destroy();
         } else {
           const c: any = docker.getContainer(container);
-          logger.info(`stopping container ${container}`);
+          logger.info(`Stopping container ${container}`);
 
           jobs.push(c.kill().catch(ex => logger.debug(`kill container instance error, error is ${ex}`)));
         }
@@ -88,7 +88,7 @@ function waitingForContainerStopped(): any {
 
     try {
       await Promise.all(jobs);
-      logger.info('all containers stopped');
+      logger.info('All containers stopped');
     } catch (error) {
       logger.error(error);
       process.exit(-1); // eslint-disable-line
@@ -344,7 +344,7 @@ export async function pullImage(imageName: string): Promise<any> {
 
   return await new Promise((resolve, reject) => {
 
-    logger.info(`begin pulling image ${resolveImageName}, you can also use ` + `'docker pull ${resolveImageName}'` + ' to pull image by yourself.');
+    logger.info(`Pulling image ${resolveImageName}, you can also use ` + `'docker pull ${resolveImageName}'` + ' to pull image by yourself.');
 
     const onFinished = async (err) => {
       if (err) {
@@ -505,7 +505,7 @@ export async function pullImageIfNeed(imageName): Promise<void> {
     await pullImage(imageName);
   } else {
     logger.debug(`skip pulling image ${imageName}...`);
-    logger.info(`skip pulling image ${imageName}...`);
+    logger.info(`Skip pulling image ${imageName}...`);
   }
 }
 
@@ -513,7 +513,7 @@ export async function showDebugIdeTipsForVscode(serviceName: string, functionNam
   const vscodeDebugConfig = await generateVscodeDebugConfig(serviceName, functionName, runtime, codeSource, debugPort);
 
   // todo: auto detect .vscode/launch.json in codeuri path.
-  logger.log('you can paste these config to .vscode/launch.json, and then attach to your running function');
+  logger.log('You can paste these config to .vscode/launch.json, and then attach to your running function', 'yellow');
   logger.log('///////////////// config begin /////////////////');
   logger.log(JSON.stringify(vscodeDebugConfig, null, 4));
   logger.log('///////////////// config end /////////////////');
@@ -618,11 +618,11 @@ export async function exitContainer(container): Promise<void> {
   if (container) {
     // exitRs format: {"Error":null,"StatusCode":0}
     // see https://docs.docker.com/engine/api/v1.37/#operation/ContainerStop
-    logger.log('exitContainer...');
+    logger.info('Exiting Container...');
     await container.stop();
 
     containers.delete(container.id);
-    logger.log('container exited!', 'green');
+    logger.info('Container exited!');
   } else {
     throw new Error('Exited container is undefined!');
   }
@@ -868,7 +868,7 @@ function displaySboxTips(runtime) {
   default:
     break;
   }
-  logger.info('type \'fun-install --help\' for more help\n');
+  logger.info('Type \'fun-install --help\' for more help\n');
 }
 
 export async function startSboxContainer({
