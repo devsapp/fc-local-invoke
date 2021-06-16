@@ -89,6 +89,10 @@ function waitingForContainerStopped(): any {
     try {
       await Promise.all(jobs);
       logger.info('All containers stopped');
+      // 修复 windows 环境下 Ctrl C 后容器退出，但是程序会 block 住的问题
+      if (process.platform === 'win32') {
+        process.exit(0);
+      }
     } catch (error) {
       logger.error(error);
       process.exit(-1); // eslint-disable-line
