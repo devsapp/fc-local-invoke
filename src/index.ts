@@ -25,7 +25,10 @@ import StdoutFormatter from './lib/component/stdout-formatter';
 import express from 'express';
 const app: any = express();
 
-const serverPort: number = 8000;
+const MIN_SERVER_PORT: number = 7000;
+const MAX_SERVER_PORT: number = 8000;
+
+const serverPort: number = parseInt(_.toString(Math.random()*(MAX_SERVER_PORT-MIN_SERVER_PORT+1)+MIN_SERVER_PORT), 10); ;
 const SUPPORTED_MODES: string[] = ['api', 'server', 'normal'];
 export default class FcLocalInvokeComponent extends BaseComponent {
   constructor(props) {
