@@ -16,6 +16,7 @@ import extract = require("extract-zip");
 import * as tmpDir from 'temp-dir';
 import { DEFAULT_NAS_PATH_SUFFIX } from '../devs';
 import { isCustomContainerRuntime } from '../common/model/runtime';
+import {writeDebugIdeConfigForVscode} from "../docker/docker";
 
 
 
@@ -73,11 +74,11 @@ export default class Invoke {
     this.serviceConfig = serviceConfig;
     this.functionName = functionConfig.name;
     this.functionConfig = functionConfig;
-    this.triggerConfig = triggerConfig; 
+    this.triggerConfig = triggerConfig;
     this.debugPort = debugPort;
     this.debugIde = debugIde;
     this.nasBaseDir = nasBaseDir;
-    
+
     this.runtime = this.functionConfig.runtime;
     this.baseDir = baseDir;
     this.codeUri = this.functionConfig.codeUri ? path.resolve(this.baseDir, this.functionConfig.codeUri) : null;
@@ -92,7 +93,8 @@ export default class Invoke {
     }
 
     await this.beforeInvoke();
-    await this.showDebugIdeTips();
+    // await this.showDebugIdeTips();
+    await this.setDebugIdeConfig();
     // @ts-ignore
     await this.doInvoke(req, res);
     await this.afterInvoke();
@@ -153,6 +155,17 @@ export default class Invoke {
       // not show tips if debugIde is null
       if (this.debugIde.toLowerCase() === 'vscode') {
         await docker.showDebugIdeTipsForVscode(this.serviceName, this.functionName, this.runtime, this.codeMount.Source, this.debugPort);
+      } else if (this.debugIde.toLowerCase() === 'pycharm') {
+        await docker.showDebugIdeTipsForPycharm(this.codeMount.Source, this.debugPort);
+      }
+    }
+  }
+
+  async setDebugIdeConfig() {
+    if (this.debugPort && this.debugIde) {
+      if (this.debugIde.toLowerCase() === 'vscode') {
+        // try to write .vscode/config.json
+        await writeDebugIdeConfigForVscode(this.baseDir, this.serviceName, this.functionName, this.runtime, this.codeMount.Source, this.debugPort);
       } else if (this.debugIde.toLowerCase() === 'pycharm') {
         await docker.showDebugIdeTipsForPycharm(this.codeMount.Source, this.debugPort);
       }

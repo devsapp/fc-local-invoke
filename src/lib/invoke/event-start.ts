@@ -58,6 +58,7 @@ export default class EventStart extends Invoke {
       since: (new Date().getTime() / 1000)
     });
     console.log('local start succeeded.');
-    await this.showDebugIdeTips();
+    // await this.showDebugIdeTips();
+    await this.setDebugIdeConfig();
   }
 }
