@@ -37,7 +37,7 @@ export default class FcLocalInvokeComponent extends BaseComponent {
 
   async report(componentName: string, command: string, accountID?: string, access?: string): Promise<void> {
     let uid: string = accountID;
-    if (_.isEmpty(accountID)) {
+    if (!accountID && access) {
       const credentials: ICredentials = await core.getCredential(access);
       uid = credentials.AccountID;
     }
@@ -57,7 +57,7 @@ export default class FcLocalInvokeComponent extends BaseComponent {
       console.log(`function compute app listening on port ${serverPort}!`);
       console.log();
     });
-  
+
     registerSigintForExpress(server);
   }
 
@@ -65,17 +65,17 @@ export default class FcLocalInvokeComponent extends BaseComponent {
     await StdoutFormatter.initStdout();
     const project = inputs?.project;
     const access: string = project?.access;
-    await this.report('fc-local-invoke', inputs?.command, null, access);
+    const credentials: ICredentials = await core.getCredential(access);
+    await this.report('fc-local-invoke', inputs?.command, credentials?.AccountID);
 
     const properties: IProperties = inputs?.props;
     const appName: string = inputs?.appName;
-    const credentials: ICredentials = await core.getCredential(access);
     // 去除 args 的行首以及行尾的空格
     const args: string = inputs?.args.replace(/(^\s*)|(\s*$)/g, '');
     const curPath: any = inputs?.path;
     const projectName: string = project?.projectName;
     const { region } = properties;
-    
+
     const parsedArgs: {[key: string]: any} = core.commandParse({ args }, {
       boolean: ['help'],
       alias: { help: 'h' } });
@@ -101,7 +101,7 @@ export default class FcLocalInvokeComponent extends BaseComponent {
     const triggerConfigList: TriggerConfig[] = properties?.triggers;
     const customDomainConfigList: CustomDomainConfig[] = properties?.customDomains;
 
-    
+
     return {
       serviceConfig,
       functionConfig,
@@ -169,7 +169,7 @@ export default class FcLocalInvokeComponent extends BaseComponent {
         status: 'failed'
       };
     }
-    
+
     const {
       debugPort,
       debugIde,
@@ -184,7 +184,7 @@ export default class FcLocalInvokeComponent extends BaseComponent {
     const functionName: string = functionConfig.name;
 
     await ensureFilesModified(devsPath);
-    
+
     const httpTrigger: TriggerConfig = findHttpTrigger(triggerConfigList);
     const [domainName, routePath] = parseDomainRoutePath(invokeName);
 
@@ -261,7 +261,7 @@ export default class FcLocalInvokeComponent extends BaseComponent {
         status: 'failed'
       };
     }
-    
+
     const {
       debugPort,
       debugIde,
@@ -274,7 +274,7 @@ export default class FcLocalInvokeComponent extends BaseComponent {
     const serviceName: string = serviceConfig?.name;
     const functionName: string = functionConfig?.name;
     const mode: string = argsData['mode'];
-    
+
     if (mode && !SUPPORTED_MODES.includes(mode)) {
       throw new Error(`Unsupported mode: ${mode}`);
     }
@@ -320,8 +320,8 @@ export default class FcLocalInvokeComponent extends BaseComponent {
     };
   }
 
-  public async help(inputs: InputProps): Promise<void> {
-    await this.report('fc-local-invoke', 'help', null, inputs?.project?.access);
+  public async help(): Promise<void> {
+    await this.report('fc-local-invoke', 'help');
     core.help(COMPONENT_HELP_INFO);
   }
 
