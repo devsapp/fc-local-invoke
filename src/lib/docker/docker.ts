@@ -523,6 +523,36 @@ export async function showDebugIdeTipsForVscode(serviceName: string, functionNam
   logger.log('///////////////// config end /////////////////');
 }
 
+export async function writeDebugIdeConfigForVscode(baseDir: string, serviceName: string, functionName: string, runtime: string, codeSource: string, debugPort?: number): Promise<void> {
+  const configJsonFolder: string = path.join(baseDir, '.vscode');
+  const configJsonFilePath: string = path.join(configJsonFolder, 'launch.json');
+  try {
+    await fs.ensureDir(path.dirname(configJsonFilePath));
+  } catch (e) {
+    logger.warning(`Ensure directory: ${configJsonFolder} failed.`);
+    await showDebugIdeTipsForVscode(serviceName, functionName, runtime, codeSource, debugPort);
+    logger.debug(`Ensure directory: ${configJsonFolder} failed, error: ${e}`);
+    return;
+  }
+  const vscodeDebugConfig = await generateVscodeDebugConfig(serviceName, functionName, runtime, codeSource, debugPort);
+  if (fs.pathExistsSync(configJsonFilePath) && fs.lstatSync(configJsonFilePath).isFile()) {
+    // 文件已存在则对比文件内容与待写入内容，若不一致提示用户需要手动写入 launch.json
+    const configInJsonFile = JSON.parse(await fs.readFile(configJsonFilePath, {encoding: 'utf8'}));
+    if (_.isEqual(configInJsonFile, vscodeDebugConfig)) { return; }
+    logger.warning(`File: ${configJsonFilePath} already exists, please overwrite it with the following config.`);
+    await showDebugIdeTipsForVscode(serviceName, functionName, runtime, codeSource, debugPort);
+    return;
+  }
+  try {
+    await fs.writeFile(configJsonFilePath, JSON.stringify(vscodeDebugConfig, null, '  '), {encoding: 'utf8', flag: 'w'});
+  } catch (e) {
+    logger.warning(`Write ${configJsonFilePath} failed.`);
+    await showDebugIdeTipsForVscode(serviceName, functionName, runtime, codeSource, debugPort);
+    logger.debug(`Write ${configJsonFilePath} failed, error: ${e}`);
+  }
+}
+
+
 export async function showDebugIdeTipsForPycharm(codeSource: string, debugPort: number): Promise<void> {
 
   const stats = await fs.lstat(codeSource);
@@ -612,7 +642,7 @@ export async function runContainer(opts, outputStream, errorStream, context?: an
 
   containers.add(container.id);
 
-  return { 
+  return {
     container,
     stream
   };
