@@ -186,6 +186,10 @@ export default class FcLocalInvokeComponent extends BaseComponent {
     await ensureFilesModified(devsPath);
 
     const httpTrigger: TriggerConfig = findHttpTrigger(triggerConfigList);
+    if (_.isEmpty(httpTrigger)) {
+      logger.error(`Start method only for the function with the http trigger.`);
+      return;
+    }
     const [domainName, routePath] = parseDomainRoutePath(invokeName);
 
     const routePaths: string[] = getRoutePathsByDomainPath(customDomainConfigList, domainName, routePath);
