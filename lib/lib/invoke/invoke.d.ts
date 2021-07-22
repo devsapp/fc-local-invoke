@@ -37,6 +37,7 @@ export default class Invoke {
     init(): Promise<void>;
     beforeInvoke(): Promise<void>;
     showDebugIdeTips(): Promise<void>;
+    setDebugIdeConfig(): Promise<void>;
     cleanUnzippedCodeDir(): void;
     afterInvoke(): Promise<void>;
 }

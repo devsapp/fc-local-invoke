@@ -56,7 +56,7 @@
 					}
 				},
 				{
-					"id": 26,
+					"id": 25,
 					"name": "client",
 					"kind": 1024,
 					"kindString": "Property",
@@ -80,7 +80,7 @@
 					}
 				},
 				{
-					"id": 27,
+					"id": 26,
 					"name": "inputs",
 					"kind": 1024,
 					"kindString": "Property",
@@ -97,7 +97,7 @@
 					}
 				},
 				{
-					"id": 30,
+					"id": 29,
 					"name": "__doc",
 					"kind": 2048,
 					"kindString": "Method",
@@ -111,14 +111,14 @@
 					],
 					"signatures": [
 						{
-							"id": 31,
+							"id": 30,
 							"name": "__doc",
 							"kind": 4096,
 							"kindString": "Call signature",
 							"flags": {},
 							"parameters": [
 								{
-									"id": 32,
+									"id": 31,
 									"name": "projectName",
 									"kind": 32768,
 									"kindString": "Parameter",
@@ -147,7 +147,7 @@
 					}
 				},
 				{
-					"id": 28,
+					"id": 27,
 					"name": "__getBasePath",
 					"kind": 2048,
 					"kindString": "Method",
@@ -161,7 +161,7 @@
 					],
 					"signatures": [
 						{
-							"id": 29,
+							"id": 28,
 							"name": "__getBasePath",
 							"kind": 4096,
 							"kindString": "Call signature",
@@ -190,7 +190,7 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 60,
+							"line": 64,
 							"character": 21
 						}
 					],
@@ -238,7 +238,7 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 318,
+							"line": 327,
 							"character": 19
 						}
 					],
@@ -249,19 +249,6 @@
 							"kind": 4096,
 							"kindString": "Call signature",
 							"flags": {},
-							"parameters": [
-								{
-									"id": 25,
-									"name": "inputs",
-									"kind": 32768,
-									"kindString": "Parameter",
-									"flags": {},
-									"type": {
-										"type": "reference",
-										"name": "InputProps"
-									}
-								}
-							],
 							"type": {
 								"type": "reference",
 								"typeArguments": [
@@ -286,7 +273,7 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 211,
+							"line": 220,
 							"character": 21
 						}
 					],
@@ -337,7 +324,7 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 34,
+							"line": 38,
 							"character": 14
 						}
 					],
@@ -422,7 +409,7 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 122,
+							"line": 127,
 							"character": 20
 						}
 					],
@@ -473,7 +460,7 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 50,
+							"line": 54,
 							"character": 14
 						}
 					],
@@ -517,16 +504,16 @@
 					"title": "Properties",
 					"kind": 1024,
 					"children": [
-						26,
-						27
+						25,
+						26
 					]
 				},
 				{
 					"title": "Methods",
 					"kind": 2048,
 					"children": [
-						30,
-						28,
+						29,
+						27,
 						14,
 						23,
 						20,
@@ -539,7 +526,7 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 29,
+					"line": 33,
 					"character": 43
 				}
 			],
