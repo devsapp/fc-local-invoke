@@ -18,6 +18,7 @@ export declare function generateDockerfileEnvs(region: string, baseDir: string, 
 export declare function generateDockerEnvs(region: string, baseDir: string, serviceName: string, serviceProps: ServiceConfig, functionName: string, functionProps: FunctionConfig, debugPort: number, httpParams: any, nasConfig: NasConfig, ishttpTrigger: boolean, debugIde: any, debugArgs?: any): Promise<any>;
 export declare function pullImageIfNeed(imageName: any): Promise<void>;
 export declare function showDebugIdeTipsForVscode(serviceName: string, functionName: string, runtime: string, codeSource: string, debugPort?: number): Promise<void>;
+export declare function writeDebugIdeConfigForVscode(baseDir: string, serviceName: string, functionName: string, runtime: string, codeSource: string, debugPort?: number): Promise<void>;
 export declare function showDebugIdeTipsForPycharm(codeSource: string, debugPort: number): Promise<void>;
 export declare function isDockerToolBoxAndEnsureDockerVersion(): Promise<boolean>;
 export declare function runContainer(opts: any, outputStream: any, errorStream: any, context?: any): Promise<{

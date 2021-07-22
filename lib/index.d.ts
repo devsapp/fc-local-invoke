@@ -17,5 +17,5 @@ export default class FcLocalInvokeComponent extends BaseComponent {
      * @returns
      */
     invoke(inputs: InputProps): Promise<any>;
-    help(inputs: InputProps): Promise<void>;
+    help(): Promise<void>;
 }

@@ -1,6 +1,6 @@
 {
   "name": "fc-local-invoke",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "This is a component demo for Serverless Devs Tool ",
   "keywords": [
     "Serverless",
@@ -67,7 +67,7 @@
     "promise.prototype.finally": "^3.1.2"
   },
   "fc-docker": {
-    "version": "1.9.17",
+    "version": "1.9.18",
     "registry_default": "registry.cn-beijing.aliyuncs.com",
     "registry_mirrors": [
       "registry.cn-beijing.aliyuncs.com",
