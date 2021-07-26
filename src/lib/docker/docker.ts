@@ -23,6 +23,7 @@ import { processorTransformFactory } from '../error-processor';
 import { getProfile } from '../profile';
 import { ICredentials } from '../../common/entity';
 import { generateVscodeDebugConfig, generateDebugEnv } from '../debug';
+import {encryptDockerOpts} from "./docker-opts";
 
 const isWin: boolean = process.platform === 'win32';
 draftlog.into(console);
@@ -820,7 +821,8 @@ export async function startContainer(opts: any, outputStream?: any, errorStream?
       }
 
       // docker exec
-      logger.debug(`docker exec opts: ${JSON.stringify(options, null, 4)}`);
+      const encryptedOpts: any = encryptDockerOpts(opts);
+      logger.debug(`docker exec opts: ${JSON.stringify(encryptedOpts, null, 4)}`);
 
       const exec = await container.exec(options);
 

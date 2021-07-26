@@ -183,19 +183,7 @@ export async function generateLocalInvokeOpts(runtime, containerName, mounts, cm
     hostOpts,
     debugOpts);
 
-  const encryptedOpts: any = _.cloneDeep(opts);
-  if (encryptedOpts?.Env) {
-    const encryptedEnv: any = encryptedOpts.Env.map((e: string) => {
-      if (e.startsWith("FC_ACCESS_KEY_ID") || e.startsWith("FC_ACCESS_KEY_SECRET") || e.startsWith("FC_ACCOUNT_ID")) {
-        const keyValueList: string[] = e.split('=');
-        const encrptedVal: string = mark(keyValueList[1]);
-        return `${keyValueList[0]}=${encrptedVal}`;
-      } else {
-        return e;
-      }
-    });
-    encryptedOpts.Env = encryptedEnv;
-  }
+  const encryptedOpts: any = encryptDockerOpts(opts);
   logger.debug(`fc-docker docker options: ${JSON.stringify(encryptedOpts, null, '  ')}`);
 
   return opts;
@@ -250,7 +238,13 @@ async function genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, d
     },
     hostOpts,
     debugOpts);
-  const encryptedOpts: any = _.cloneDeep(opts);
+  const encryptedOpts: any = encryptDockerOpts(opts);
+  logger.debug(`docker options: ${JSON.stringify(encryptedOpts, null, '  ')}`);
+  return opts;
+}
+
+export function encryptDockerOpts(dockerOpts: any): any {
+  const encryptedOpts: any = _.cloneDeep(dockerOpts);
   if (encryptedOpts?.Env) {
     const encryptedEnv: any = encryptedOpts.Env.map((e: string) => {
       if (e.startsWith("FC_ACCESS_KEY_ID") || e.startsWith("FC_ACCESS_KEY_SECRET") || e.startsWith("FC_ACCOUNT_ID")) {
@@ -263,9 +257,9 @@ async function genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, d
     });
     encryptedOpts.Env = encryptedEnv;
   }
-  logger.debug(`docker options: ${JSON.stringify(encryptedOpts, null, '  ')}`);
-  return opts;
+  return encryptedOpts;
 }
+
 
 // /**
 //  * 支持通过 BOOTSTRAP_FILE 环境变量改变 bootstrap 文件名。
@@ -319,19 +313,7 @@ function genCustomContainerLocalStartOpts(name, mounts, cmd, envs, imageName, ca
     AttachStderr: true
   };
   const dockerOpts = nestedObjectAssign(opts, hostOpts, ioOpts);
-  const encryptedOpts: any = _.cloneDeep(dockerOpts);
-  if (encryptedOpts?.Env) {
-    const encryptedEnv: any = encryptedOpts.Env.map((e: string) => {
-      if (e.startsWith("FC_ACCESS_KEY_ID") || e.startsWith("FC_ACCESS_KEY_SECRET") || e.startsWith("FC_ACCOUNT_ID")) {
-        const keyValueList: string[] = e.split('=');
-        const encrptedVal: string = mark(keyValueList[1]);
-        return `${keyValueList[0]}=${encrptedVal}`;
-      } else {
-        return e;
-      }
-    });
-    encryptedOpts.Env = encryptedEnv;
-  }
+  const encryptedOpts: any = encryptDockerOpts(dockerOpts)
   logger.debug(`docker options for custom container: ${JSON.stringify(encryptedOpts, null, '  ')}`);
   return dockerOpts;
 }
