@@ -26,6 +26,7 @@ export declare function generateLocalStartOpts(runtime: any, name: any, mounts: 
     imageName: any;
     caPort?: number;
 }): Promise<any>;
+export declare function encryptDockerOpts(dockerOpts: any): any;
 export declare function resolveMockScript(runtime: string): string;
 export declare function resolveDockerRegistry(): Promise<any>;
 export declare function resolveDockerEnv(envs?: {}, isCustomContainer?: boolean): string[];
