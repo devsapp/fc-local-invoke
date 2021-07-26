@@ -89,8 +89,8 @@ export function checkCustomDomainConfig(serviceName: string, functionName: strin
     throw new Error(`Duplicate custom domain: ${domainName} in your s.yml/yaml with service/function: ${serviceName}/${functionName}.`);
   }
   const customDomainConfig: CustomDomainConfig = filteredCustomDomainConfig[0];
-  const serviceNamesInRoute: string[] = customDomainConfig.routeConfigs.map((r) => r.serviceName);
-  const functionNamesInRoute: string[] = customDomainConfig.routeConfigs.map((r) => r.functionName);
+  const serviceNamesInRoute: string[] = customDomainConfig.routeConfigs.map((r) => r.serviceName || serviceName);
+  const functionNamesInRoute: string[] = customDomainConfig.routeConfigs.map((r) => r.functionName || functionName);
   if (!_.includes(serviceNamesInRoute, serviceName) || !_.includes(functionNamesInRoute, functionName)) {
     throw new Error(`can't find ${serviceName}/${functionName} in routeConfigs under domain: ${domainName}.`);
   }
