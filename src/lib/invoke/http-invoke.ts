@@ -21,6 +21,7 @@ import { validateSignature, parseOutputStream, getHttpRawBody, generateHttpParam
 import { v4 as uuidv4 } from 'uuid';
 import { isCustomContainerRuntime } from '../common/model/runtime';
 import logger from '../../common/logger';
+import {ICredentials} from "../../common/entity";
 
 const isWin = process.platform === 'win32';
 
@@ -34,8 +35,8 @@ export default class HttpInvoke extends Invoke {
   private _invokeInitializer: boolean;
   private runner: any;
   private watcher?: any;
-  constructor(region: string, baseDir: string, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, triggerConfig?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, authType?: string, endpointPrefix?: string, debuggerPath?: any, debugArgs?: any, nasBaseDir?: string) {
-    super(region, baseDir, serviceConfig, functionConfig, triggerConfig, debugPort, debugIde, tmpDir, debuggerPath, debugArgs, nasBaseDir);
+  constructor(creds: ICredentials, region: string, baseDir: string, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, triggerConfig?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, authType?: string, endpointPrefix?: string, debuggerPath?: any, debugArgs?: any, nasBaseDir?: string) {
+    super(creds, region, baseDir, serviceConfig, functionConfig, triggerConfig, debugPort, debugIde, tmpDir, debuggerPath, debugArgs, nasBaseDir);
 
     this.isAnonymous = authType === 'ANONYMOUS' || authType === 'anonymous';
     this.endpointPrefix = endpointPrefix;
@@ -127,7 +128,7 @@ export default class HttpInvoke extends Invoke {
   }
 
   async _startRunner() {
-    const envs = await docker.generateDockerEnvs(this.region, this.baseDir, this.serviceName, this.serviceConfig, this.functionName, this.functionConfig, this.debugPort, null, this.nasConfig, true, this.debugIde, this.debugArgs);
+    const envs = await docker.generateDockerEnvs(this.creds, this.region, this.baseDir, this.serviceName, this.serviceConfig, this.functionName, this.functionConfig, this.debugPort, null, this.nasConfig, true, this.debugIde, this.debugArgs);
     const cmd = docker.generateDockerCmd(this.runtime, true, this.functionConfig);
 
     const opts = await dockerOpts.generateLocalStartOpts(this.runtime,
@@ -163,7 +164,7 @@ export default class HttpInvoke extends Invoke {
       const event = await getHttpRawBody(req);
       const httpParams = generateHttpParams(req, this.endpointPrefix);
 
-      const envs = await docker.generateDockerEnvs(this.region, this.baseDir, this.serviceName, this.serviceConfig, this.functionName, this.functionConfig, this.debugPort, httpParams, this.nasConfig, true, this.debugIde);
+      const envs = await docker.generateDockerEnvs(this.creds, this.region, this.baseDir, this.serviceName, this.serviceConfig, this.functionName, this.functionConfig, this.debugPort, httpParams, this.nasConfig, true, this.debugIde);
 
       if (this.debugPort && !this.runner) {
         // don't reuse container
@@ -211,7 +212,7 @@ export default class HttpInvoke extends Invoke {
 
           if (!this.isAnonymous) {
             // check signature
-            if (!await validateSignature(req, res, req.method)) { return; }
+            if (!await validateSignature(req, res, req.method, this.creds)) { return; }
           }
 
           try {

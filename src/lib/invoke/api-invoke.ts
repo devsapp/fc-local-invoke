@@ -12,17 +12,18 @@ import { TriggerConfig } from '../interface/fc-trigger';
 import logger from '../../common/logger';
 import { v4 as uuidv4 } from 'uuid';
 import * as streams from 'memory-streams';
+import {ICredentials} from "../../common/entity";
 
 export default class ApiInvoke extends Invoke {
   private envs: any;
   private cmd: string[];
-  constructor(region: string, baseDir: string, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, triggerConfig?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string) {
-    super(region, baseDir, serviceConfig, functionConfig, triggerConfig, debugPort, debugIde, tmpDir, debuggerPath, debugArgs, nasBaseDir);
+  constructor(creds: ICredentials, region: string, baseDir: string, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, triggerConfig?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string) {
+    super(creds, region, baseDir, serviceConfig, functionConfig, triggerConfig, debugPort, debugIde, tmpDir, debuggerPath, debugArgs, nasBaseDir);
   }
 
   async init() {
     await super.init();
-    this.envs = await docker.generateDockerEnvs(this.region, this.baseDir, this.serviceName, this.serviceConfig, this.functionName, this.functionConfig,  this.debugPort, null, this.nasConfig, true, this.debugIde, this.debugArgs);
+    this.envs = await docker.generateDockerEnvs(this.creds, this.region, this.baseDir, this.serviceName, this.serviceConfig, this.functionName, this.functionConfig,  this.debugPort, null, this.nasConfig, true, this.debugIde, this.debugArgs);
   }
 
   async doInvoke(req, res) {
@@ -36,18 +37,18 @@ export default class ApiInvoke extends Invoke {
     const errorStream = new streams.WritableStream();
 
     // check signature
-    if (!await validateSignature(req, res, req.method)) { return; }
+    if (!await validateSignature(req, res, req.method, this.creds)) { return; }
     if (isCustomContainerRuntime(this.runtime)) {
-      const opts = await dockerOpts.generateLocalStartOpts(this.runtime, 
+      const opts = await dockerOpts.generateLocalStartOpts(this.runtime,
         containerName,
         this.mounts,
         this.cmd,
         this.envs,
         {
           debugPort: this.debugPort,
-          dockerUser: this.dockerUser, 
-          debugIde: this.debugIde, 
-          imageName: this.imageName, 
+          dockerUser: this.dockerUser,
+          debugIde: this.debugIde,
+          imageName: this.imageName,
           caPort: this.functionConfig.caPort
         }
       );
@@ -63,7 +64,7 @@ export default class ApiInvoke extends Invoke {
       if (this.functionConfig.initializer) {
         console.log('Initializing...');
         const initRequestOpts = generateInitRequestOpts({}, this.functionConfig.caPort, fcReqHeaders);
-  
+
         const initResp = await requestUntilServerUp(initRequestOpts, this.functionConfig.initializationTimeout || 3);
         console.log(initResp.body);
         logger.debug(`Response of initialization is: ${JSON.stringify(initResp)}`);
@@ -77,7 +78,7 @@ export default class ApiInvoke extends Invoke {
       this.responseOfCustomContainer(res, respOfCustomContainer);
       await docker.exitContainer(container);
     } else {
-      const opts = await dockerOpts.generateLocalInvokeOpts(this.runtime,	
+      const opts = await dockerOpts.generateLocalInvokeOpts(this.runtime,
         containerName,
         this.mounts,
         this.cmd,
@@ -89,7 +90,7 @@ export default class ApiInvoke extends Invoke {
         event,
         outputStream,
         errorStream);
-  
+
       this.response(outputStream, errorStream, res);
     }
   }
@@ -123,7 +124,7 @@ export default class ApiInvoke extends Invoke {
     } else {
       res.status(500);
     }
-    
+
 
     // todo: fix body 后面多个换行的 bug
     if (errorResponse) { // process HandledInvocationError and UnhandledInvocationError

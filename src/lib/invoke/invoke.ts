@@ -17,6 +17,7 @@ import * as tmpDir from 'temp-dir';
 import { DEFAULT_NAS_PATH_SUFFIX } from '../devs';
 import { isCustomContainerRuntime } from '../common/model/runtime';
 import {writeDebugIdeConfigForVscode} from "../docker/docker";
+import {ICredentials} from "../../common/entity";
 
 
 
@@ -67,8 +68,10 @@ export default class Invoke {
   protected passwdMount?: any;
   protected mounts?: any;
   protected nasMappingsMount? : any;
+  protected creds: ICredentials;
 
-  constructor(region: string, baseDir: string, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, triggerConfig?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string) {
+  constructor(creds, region: string, baseDir: string, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, triggerConfig?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string) {
+    this.creds = creds;
     this.region = region;
     this.serviceName = serviceConfig.name;
     this.serviceConfig = serviceConfig;

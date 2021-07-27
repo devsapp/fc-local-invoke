@@ -10,21 +10,22 @@ import { getFcReqHeaders, generateInitRequestOpts, requestUntilServerUp, generat
 import { v4 as uuidv4 } from 'uuid';
 import { isCustomContainerRuntime } from '../common/model/runtime';
 import logger from '../../common/logger';
+import {ICredentials} from "../../common/entity";
 
 export default class LocalInvoke extends Invoke {
   private reuse: boolean;
   private envs: any;
   private cmd: string[];
   private opts: any;
-  constructor(region: string, baseDir: string, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, triggerConfig?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, debuggerPath?: any, debugArgs?: any, reuse?: boolean, nasBaseDir?: string) {
-    super(region, baseDir, serviceConfig, functionConfig, triggerConfig, debugPort, debugIde, tmpDir, debuggerPath, debugArgs, nasBaseDir);
+  constructor(creds: ICredentials, region: string, baseDir: string, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, triggerConfig?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, debuggerPath?: any, debugArgs?: any, reuse?: boolean, nasBaseDir?: string) {
+    super(creds, region, baseDir, serviceConfig, functionConfig, triggerConfig, debugPort, debugIde, tmpDir, debuggerPath, debugArgs, nasBaseDir);
     this.reuse = reuse;
   }
 
 
   async init() {
     await super.init();
-    this.envs = await docker.generateDockerEnvs(this.region, this.baseDir, this.serviceName, this.serviceConfig, this.functionName, this.functionConfig, this.debugPort, null, this.nasConfig, false, this.debugIde, this.debugArgs);
+    this.envs = await docker.generateDockerEnvs(this.creds, this.region, this.baseDir, this.serviceName, this.serviceConfig, this.functionName, this.functionConfig, this.debugPort, null, this.nasConfig, false, this.debugIde, this.debugArgs);
     this.cmd = docker.generateDockerCmd(this.runtime, false,
       this.functionConfig,
       false
@@ -137,6 +138,6 @@ export default class LocalInvoke extends Invoke {
         }
       );
     }
-    
+
   }
 }
