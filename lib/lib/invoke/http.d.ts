@@ -1,8 +1,9 @@
+import { ICredentials } from '../../common/entity';
 export declare function normalizeRawHeaders(rawHeaders: any): {};
 export declare function normalizeMultiValues(maps: any): {};
 export declare function generateHttpParams(req: any, pathPrefix: any): string;
 export declare function getHttpRawBody(req: any): Promise<any>;
-export declare function validateSignature(req: any, res: any, method: any): Promise<boolean>;
+export declare function validateSignature(req: any, res: any, method: any, creds: ICredentials): Promise<boolean>;
 export declare function parseHttpTriggerHeaders(base64Headers: any): any;
 export declare function filterFunctionResponseAndExecutionInfo(response: any): [any[], string];
 export declare function parseResponse(responseString: any): any;
