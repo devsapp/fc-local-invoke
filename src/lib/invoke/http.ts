@@ -1,6 +1,5 @@
 'use strict';
 
-import { getProfile } from '../profile';
 import { ICredentials } from '../../common/entity'
 import { sleep } from '../time';
 import logger from '../../common/logger';
@@ -44,7 +43,7 @@ export function normalizeMultiValues(maps) {
   if (maps) {
     return Object.entries(maps)
       .reduce((acc, [key, val]) =>
-        Object.assign(acc, { [key]: Array.isArray(val) ? val : [val] }), 
+        Object.assign(acc, { [key]: Array.isArray(val) ? val : [val] }),
       {});
   }
 
@@ -89,9 +88,8 @@ export async function getHttpRawBody(req) {
   return event;
 }
 
-export async function validateSignature(req, res, method) {
-  const profile: ICredentials = await getProfile();
-  const signature = FC.getSignature(profile.AccessKeyID, profile.AccessKeySecret, method, req.path, req.headers, req.queries);
+export async function validateSignature(req, res, method, creds: ICredentials) {
+  const signature = FC.getSignature(creds?.AccessKeyID, creds?.AccessKeySecret, method, req.path, req.headers, req.queries);
   const clientSignature = req.headers['authorization'];
 
   if (signature !== clientSignature) {
@@ -151,7 +149,7 @@ export function filterFunctionResponseAndExecutionInfo(response): [any[], string
 }
 
 // copied from http-string-parser library
-// only change: 
+// only change:
 // use \r\n instead of \r?\n in responseString.split
 // see https://stackoverflow.com/a/27966412/6602338
 // see http.test.js "test image response"
@@ -276,10 +274,10 @@ export async function requestUntilServerUp(opts, timeout): Promise<any> {
         }
         if (error.response && error.response.statusCode) {
           resp = {
-            statusCode: error.response.statusCode, 
+            statusCode: error.response.statusCode,
             headers: {
               'Content-Type': 'application/json'
-            }, 
+            },
             body: {
               'errorMessage': error.message
             }
@@ -287,10 +285,10 @@ export async function requestUntilServerUp(opts, timeout): Promise<any> {
         } else {
           logger.log(`Fc Error: ${error}`, 'red');
           resp = {
-            statusCode: 500, 
+            statusCode: 500,
             headers: {
               'Content-Type': 'application/json'
-            }, 
+            },
             body: {
               'errorMessage': error.message
             }
@@ -304,7 +302,7 @@ export async function requestUntilServerUp(opts, timeout): Promise<any> {
 }
 
 export function generateInitRequestOpts(req, port, fcHeaders) {
-  
+
   const opts = {
     method: 'POST',
     headers: fcHeaders,

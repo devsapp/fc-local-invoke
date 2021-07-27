@@ -2,28 +2,29 @@ import logger from '../../common/logger';
 import { TriggerConfig } from '../interface/fc-trigger';
 import { ServiceConfig } from '../interface/fc-service';
 import { FunctionConfig } from '../interface/fc-function';
-import yaml from 'js-yaml'; 
+import yaml from 'js-yaml';
 import * as _ from 'lodash';
 import { detectLibrary } from '../fc';
 import { ensureTmpDir } from '../utils/path';
 import HttpInvoke from '../invoke/http-invoke';
 import ApiInvoke from '../invoke/api-invoke';
 import { setCORSHeaders } from '../cors';
+import {ICredentials} from "../../common/entity";
 
 const SERVER_CLOSE_TIMEOUT: number = 3000;
 
 
-export async function registerHttpTriggerByRoutes(region: string, devsPath: string, baseDir: string, app: any, router: any, serverPort: number, httpTrigger: TriggerConfig, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, routePaths?: string[], domainName?: string, debugPort?: number, debugIde?: any, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string, eager?: boolean) {
+export async function registerHttpTriggerByRoutes(creds: ICredentials, region: string, devsPath: string, baseDir: string, app: any, router: any, serverPort: number, httpTrigger: TriggerConfig, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, routePaths?: string[], domainName?: string, debugPort?: number, debugIde?: any, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string, eager?: boolean) {
   if (_.isEmpty(routePaths)) {
-    await registerSingleHttpTrigger(region, devsPath, baseDir, app, router, serverPort, httpTrigger, serviceConfig, functionConfig, null, domainName, debugPort, debugIde, eager, debuggerPath, debugArgs, nasBaseDir);
+    await registerSingleHttpTrigger(creds, region, devsPath, baseDir, app, router, serverPort, httpTrigger, serviceConfig, functionConfig, null, domainName, debugPort, debugIde, eager, debuggerPath, debugArgs, nasBaseDir);
   } else {
     for (const routePath of routePaths) {
-      await registerSingleHttpTrigger(region, devsPath, baseDir, app, router, serverPort, httpTrigger, serviceConfig, functionConfig, routePath, domainName, debugPort, debugIde, eager, debuggerPath, debugArgs, nasBaseDir);
+      await registerSingleHttpTrigger(creds, region, devsPath, baseDir, app, router, serverPort, httpTrigger, serviceConfig, functionConfig, routePath, domainName, debugPort, debugIde, eager, debuggerPath, debugArgs, nasBaseDir);
     }
   }
 }
 
-export async function registerSingleHttpTrigger(region: string, devsPath: string, baseDir: string, app: any, router: any, serverPort: number, httpTrigger: TriggerConfig, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, routePath?: string, domainName?: string, debugPort?: number, debugIde?: string, eager = false, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string) {
+export async function registerSingleHttpTrigger(creds: ICredentials, region: string, devsPath: string, baseDir: string, app: any, router: any, serverPort: number, httpTrigger: TriggerConfig, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, routePath?: string, domainName?: string, debugPort?: number, debugIde?: string, eager = false, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string) {
   const serviceName: string = serviceConfig.name;
   const functionName: string = functionConfig.name;
   const triggerName: string = httpTrigger.name;
@@ -36,7 +37,7 @@ export async function registerSingleHttpTrigger(region: string, devsPath: string
 
   const isCustomDomain: any = routePath;
   const httpTriggerPrefix: string = `/2016-08-15/proxy/${serviceName}/${functionName}`;
-  
+
   const customDomainPrefix: string = routePath;
 
   const endpointForRoute: string = isCustomDomain ? customDomainPrefix : `${httpTriggerPrefix}/*`;
@@ -61,7 +62,7 @@ export async function registerSingleHttpTrigger(region: string, devsPath: string
 
   const tmpDir: string = await ensureTmpDir(null, devsPath, serviceName, functionName);
 
-  const httpInvoke = new HttpInvoke(region, baseDir, serviceConfig, functionConfig, triggerConfig, debugPort, debugIde, tmpDir, authType, endpointPrefix, debuggerPath, debugArgs, nasBaseDir);
+  const httpInvoke = new HttpInvoke(creds, region, baseDir, serviceConfig, functionConfig, triggerConfig, debugPort, debugIde, tmpDir, authType, endpointPrefix, debuggerPath, debugArgs, nasBaseDir);
   if (eager) {
     await httpInvoke.initAndStartRunner();
   }
@@ -74,7 +75,7 @@ export async function registerSingleHttpTrigger(region: string, devsPath: string
         res.status(403).send('websocket not support');
         return;
       }
-      
+
       // @ts-ignore
       await httpInvoke.invoke(req, res);
     });
@@ -133,7 +134,7 @@ export function registerSigintForExpress(server) {
   });
 }
 
-export async function registerApis(region: string, devsPath: string, baseDir: string, app: any, serverPort: number, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, debugPort?: number, debugIde?: any, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string) {
+export async function registerApis(creds: ICredentials, region: string, devsPath: string, baseDir: string, app: any, serverPort: number, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, debugPort?: number, debugIde?: any, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string) {
   const serviceName: string = serviceConfig.name;
   const functionName: string = functionConfig.name;
 
@@ -141,7 +142,7 @@ export async function registerApis(region: string, devsPath: string, baseDir: st
 
   const tmpDir: string = await ensureTmpDir(null, devsPath, serviceName, functionName);
 
-  const apiInvoke = new ApiInvoke(region, baseDir, serviceConfig, functionConfig, null, debugPort, debugIde, tmpDir, debuggerPath, debugArgs, nasBaseDir);
+  const apiInvoke = new ApiInvoke(creds, region, baseDir, serviceConfig, functionConfig, null, debugPort, debugIde, tmpDir, debuggerPath, debugArgs, nasBaseDir);
 
   const codeUri = functionConfig.codeUri;
   const runtime = functionConfig.runtime;

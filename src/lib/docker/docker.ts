@@ -20,7 +20,6 @@ import { getRootBaseDir } from '../devs';
 import { addEnv, addInstallTargetEnv, resolveLibPathsFromLdConf } from '../env';
 import { findPathsOutofSharedPaths } from './docker-support';
 import { processorTransformFactory } from '../error-processor';
-import { getProfile } from '../profile';
 import { ICredentials } from '../../common/entity';
 import { generateVscodeDebugConfig, generateDebugEnv } from '../debug';
 import {encryptDockerOpts} from "./docker-opts";
@@ -435,16 +434,7 @@ export function generateRamdomContainerName(): string {
   return `fc_local_${new Date().getTime()}_${Math.random().toString(36).substr(2, 7)}`;
 }
 
-export async function generateDockerfileEnvs(region: string, baseDir: string, serviceName: string, serviceProps: ServiceConfig, functionName: string, functionProps: FunctionConfig, debugPort: number, httpParams: any, nasConfig: NasConfig, ishttpTrigger: boolean, debugIde: any, debugArgs: any): Promise<string[]> {
-  const DockerEnvs = await generateDockerEnvs(region, baseDir, serviceName, serviceProps, functionName, functionProps, debugPort, httpParams, nasConfig, ishttpTrigger, debugIde, debugArgs);
-  const DockerfilEnvs: string[] = [];
-  Object.keys(DockerEnvs).forEach((key) => {
-    DockerfilEnvs.push(`${key}=${DockerEnvs[key]}`);
-  });
-  return DockerfilEnvs;
-}
-
-export async function generateDockerEnvs(region: string, baseDir: string, serviceName: string, serviceProps: ServiceConfig, functionName: string, functionProps: FunctionConfig, debugPort: number, httpParams: any, nasConfig: NasConfig, ishttpTrigger: boolean, debugIde: any, debugArgs?: any): Promise<any> {
+export async function generateDockerEnvs(creds: ICredentials, region: string, baseDir: string, serviceName: string, serviceProps: ServiceConfig, functionName: string, functionProps: FunctionConfig, debugPort: number, httpParams: any, nasConfig: NasConfig, ishttpTrigger: boolean, debugIde: any, debugArgs?: any): Promise<any> {
   const envs = {};
 
   if (httpParams) {
@@ -475,14 +465,12 @@ export async function generateDockerEnvs(region: string, baseDir: string, servic
 
   Object.assign(envs, generateFunctionEnvs(functionProps));
 
-  const profile: ICredentials = await getProfile();
-
   Object.assign(envs, {
     'local': true,
-    'FC_ACCESS_KEY_ID': profile.AccessKeyID,
-    'FC_ACCESS_KEY_SECRET': profile.AccessKeySecret,
-    'FC_SECURITY_TOKEN': profile.SecurityToken,
-    'FC_ACCOUNT_ID': profile.AccountID,
+    'FC_ACCESS_KEY_ID': creds?.AccessKeyID,
+    'FC_ACCESS_KEY_SECRET': creds?.AccessKeySecret,
+    'FC_SECURITY_TOKEN': creds?.SecurityToken,
+    'FC_ACCOUNT_ID': creds?.AccountID,
     'FC_REGION': region,
     'FC_FUNCTION_NAME': functionName,
     'FC_HANDLER': functionProps.handler,

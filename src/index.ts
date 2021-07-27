@@ -135,7 +135,8 @@ export default class FcLocalInvokeComponent extends BaseComponent {
       devsPath,
       nasBaseDir,
       baseDir,
-      isHelp
+      isHelp,
+      credentials,
     } = await this.handlerInputs(inputs);
     if (isHelp) {
       core.help(START_HELP_INFO);
@@ -203,7 +204,7 @@ export default class FcLocalInvokeComponent extends BaseComponent {
     });
 
     const eager: boolean = !_.isNil(debugPort);
-    await registerHttpTriggerByRoutes(region, devsPath, baseDir, app, router, serverPort, httpTrigger, serviceConfig, functionConfig, routePaths, domainName, debugPort, debugIde, debuggerPath, debugArgs, nasBaseDir, eager);
+    await registerHttpTriggerByRoutes(credentials, region, devsPath, baseDir, app, router, serverPort, httpTrigger, serviceConfig, functionConfig, routePaths, domainName, debugPort, debugIde, debuggerPath, debugArgs, nasBaseDir, eager);
     this.startExpress(app);
 
     showTipsWithDomainIfNecessary(customDomainConfigList, domainName);
@@ -228,7 +229,8 @@ export default class FcLocalInvokeComponent extends BaseComponent {
       nasBaseDir,
       baseDir,
       projectName,
-      isHelp
+      isHelp,
+      credentials
     } = await this.handlerInputs(inputs);
     if (isHelp) {
       core.help(INVOKE_HELP_INFO)
@@ -285,11 +287,11 @@ export default class FcLocalInvokeComponent extends BaseComponent {
 
     await ensureFilesModified(devsPath);
     if (mode === 'api') {
-      await registerApis(region, devsPath, baseDir, app, serverPort, serviceConfig, functionConfig, debugPort, debugIde, debuggerPath, debugArgs, nasBaseDir);
+      await registerApis(credentials, region, devsPath, baseDir, app, serverPort, serviceConfig, functionConfig, debugPort, debugIde, debuggerPath, debugArgs, nasBaseDir);
       this.startExpress(app);
     } else if (mode == 'server') {
       const tmpDir = await ensureTmpDir(null, devsPath, serviceName, functionName);
-      const eventStart = new EventStart(region, baseDir, serviceConfig, functionConfig, null, debugPort, debugIde, tmpDir, null, null, nasBaseDir);
+      const eventStart = new EventStart(credentials, region, baseDir, serviceConfig, functionConfig, null, debugPort, debugIde, tmpDir, null, null, nasBaseDir);
       await eventStart.init();
       logger.log(`Invoke with server mode done, please open a new terminal and execute 's exec ${projectName} -- invoke' to reuse the container.`, 'yellow');
       logger.log(`If you want to quit the server, please press Ctrl^C`, 'yellow');
@@ -314,7 +316,7 @@ export default class FcLocalInvokeComponent extends BaseComponent {
         reuse = false;
       }
       logger.debug(`reuse flag is ${reuse}`);
-      const localInvoke = new LocalInvoke(region, baseDir, serviceConfig, functionConfig, null, debugPort, debugIde, absTmpDir, debuggerPath, debugArgs, reuse, nasBaseDir);
+      const localInvoke = new LocalInvoke(credentials, region, baseDir, serviceConfig, functionConfig, null, debugPort, debugIde, absTmpDir, debuggerPath, debugArgs, reuse, nasBaseDir);
       // @ts-ignore
       await localInvoke.invoke(event);
     }

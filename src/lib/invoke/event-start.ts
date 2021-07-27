@@ -7,16 +7,17 @@ import { ServiceConfig } from '../interface/fc-service';
 import { FunctionConfig } from '../interface/fc-function';
 import { TriggerConfig } from '../interface/fc-trigger';
 import logger from '../../common/logger';
+import {ICredentials} from "../../common/entity";
 export default class EventStart extends Invoke {
   private envs: any;
   private opts: any;
-  constructor(region: string, baseDir: string, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, triggerConfig?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string) {
-    super(region, baseDir, serviceConfig, functionConfig, triggerConfig, debugPort, debugIde, tmpDir, debuggerPath, debugArgs, nasBaseDir);
+  constructor(creds: ICredentials, region: string, baseDir: string, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, triggerConfig?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string) {
+    super(creds, region, baseDir, serviceConfig, functionConfig, triggerConfig, debugPort, debugIde, tmpDir, debuggerPath, debugArgs, nasBaseDir);
   }
 
   async init() {
     await super.init();
-    this.envs = await docker.generateDockerEnvs(this.region, this.baseDir, this.serviceName,   this.serviceConfig, this.functionName, this.functionConfig,  this.debugPort, null, this.nasConfig, false, this.debugIde, this.debugArgs);
+    this.envs = await docker.generateDockerEnvs(this.creds, this.region, this.baseDir, this.serviceName,   this.serviceConfig, this.functionName, this.functionConfig,  this.debugPort, null, this.nasConfig, false, this.debugIde, this.debugArgs);
     this.containerName = dockerOpts.generateContainerName(this.serviceName, this.functionName, this.debugPort);
 
     let filters = dockerOpts.generateContainerNameFilter(this.containerName, true);
