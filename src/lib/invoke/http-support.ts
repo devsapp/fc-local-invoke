@@ -68,15 +68,20 @@ export async function registerSingleHttpTrigger(creds: ICredentials, region: str
   }
   app.use(setCORSHeaders);
   app.use(router);
-
   for (let method of httpMethods) {
     router[method.toLowerCase()](endpointForRoute, async (req, res) => {
+
       if (req.get('Upgrade') === 'websocket') {
         res.status(403).send('websocket not support');
         return;
       }
+      // Avoid get /favicon.ico, refer to: https://stackoverflow.com/questions/35408729/express-js-prevent-get-favicon-ico
+      if (_.isEqual(req.path, '/favicon.ico')) {
+        logger.debug(`Response '204 No Content' status when request path is: /favicon.ico`);
+        res.status(204).end();
+        return;
+      }
 
-      // @ts-ignore
       await httpInvoke.invoke(req, res);
     });
   }
