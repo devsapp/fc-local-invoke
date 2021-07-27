@@ -1,5 +1,6 @@
 import { NasConfig, ServiceConfig } from '../interface/fc-service';
 import { FunctionConfig } from '../interface/fc-function';
+import { ICredentials } from '../../common/entity';
 export declare function resolveNasConfigToMounts(baseDir: string, serviceName: string, nasConfig: NasConfig, nasBaseDir: string): Promise<any>;
 export declare function resolveTmpDirToMount(absTmpDir: string): Promise<any>;
 export declare function resolveDebuggerPathToMount(debuggerPath: string): Promise<any>;
@@ -14,8 +15,7 @@ export declare function generateDockerCmd(runtime: string, isLocalStartInit: boo
 export declare function pullImage(imageName: string): Promise<any>;
 export declare function generateFunctionEnvs(functionConfig: FunctionConfig): any;
 export declare function generateRamdomContainerName(): string;
-export declare function generateDockerfileEnvs(region: string, baseDir: string, serviceName: string, serviceProps: ServiceConfig, functionName: string, functionProps: FunctionConfig, debugPort: number, httpParams: any, nasConfig: NasConfig, ishttpTrigger: boolean, debugIde: any, debugArgs: any): Promise<string[]>;
-export declare function generateDockerEnvs(region: string, baseDir: string, serviceName: string, serviceProps: ServiceConfig, functionName: string, functionProps: FunctionConfig, debugPort: number, httpParams: any, nasConfig: NasConfig, ishttpTrigger: boolean, debugIde: any, debugArgs?: any): Promise<any>;
+export declare function generateDockerEnvs(creds: ICredentials, region: string, baseDir: string, serviceName: string, serviceProps: ServiceConfig, functionName: string, functionProps: FunctionConfig, debugPort: number, httpParams: any, nasConfig: NasConfig, ishttpTrigger: boolean, debugIde: any, debugArgs?: any): Promise<any>;
 export declare function pullImageIfNeed(imageName: any): Promise<void>;
 export declare function showDebugIdeTipsForVscode(serviceName: string, functionName: string, runtime: string, codeSource: string, debugPort?: number): Promise<void>;
 export declare function writeDebugIdeConfigForVscode(baseDir: string, serviceName: string, functionName: string, runtime: string, codeSource: string, debugPort?: number): Promise<void>;

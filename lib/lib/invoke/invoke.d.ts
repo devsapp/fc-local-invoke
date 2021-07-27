@@ -2,6 +2,7 @@ import { ServiceConfig, NasConfig } from '../interface/fc-service';
 import { FunctionConfig } from '../interface/fc-function';
 import { TriggerConfig } from '../interface/fc-trigger';
 import { CustomDomainConfig } from '../interface/fc-custom-domain';
+import { ICredentials } from "../../common/entity";
 export default class Invoke {
     protected baseDir: string;
     protected region: string;
@@ -32,7 +33,8 @@ export default class Invoke {
     protected passwdMount?: any;
     protected mounts?: any;
     protected nasMappingsMount?: any;
-    constructor(region: string, baseDir: string, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, triggerConfig?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string);
+    protected creds: ICredentials;
+    constructor(creds: any, region: string, baseDir: string, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, triggerConfig?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string);
     invoke(req: any, res: any): Promise<void>;
     init(): Promise<void>;
     beforeInvoke(): Promise<void>;
