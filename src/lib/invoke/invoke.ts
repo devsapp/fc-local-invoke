@@ -18,6 +18,7 @@ import { DEFAULT_NAS_PATH_SUFFIX } from '../devs';
 import { isCustomContainerRuntime } from '../common/model/runtime';
 import {writeDebugIdeConfigForVscode} from "../docker/docker";
 import {ICredentials} from "../../common/entity";
+import {isFalseValue} from "../utils/value";
 
 
 
@@ -111,7 +112,7 @@ export default class Invoke {
     this.codeMount = await docker.resolveCodeUriToMount(this.unzippedCodeDir || this.codeUri);
     // TODO: 支持 nas mapping yaml file
     // this.nasMappingsMount = await docker.resolveNasYmlToMount(this.baseDir, this.serviceName);
-    this.tmpDirMount = await docker.resolveTmpDirToMount(this.tmpDir);
+    this.tmpDirMount = (!process.env.DISABLE_BIND_MOUNT_TMP_DIR || isFalseValue(process.env.DISABLE_BIND_MOUNT_TMP_DIR)) ? await docker.resolveTmpDirToMount(this.tmpDir) : null;
     this.debuggerMount = await docker.resolveDebuggerPathToMount(this.debuggerPath);
     this.passwdMount = await docker.resolvePasswdMount();
 
