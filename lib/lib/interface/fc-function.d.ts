@@ -15,6 +15,7 @@ export interface FunctionConfig {
     instanceConcurrency?: number;
     instanceType?: string;
     codeUri?: string;
+    originalCodeUri?: string;
 }
 export interface CustomContainerConfig {
     image: string;
