@@ -109,7 +109,7 @@ export default class Invoke {
     this.dockerUser = await dockerOpts.resolveDockerUser({ nasConfig: this.nasConfig });
     this.nasMounts = await docker.resolveNasConfigToMounts(this.baseDir, this.serviceName, this.nasConfig, this.nasBaseDir || path.join(this.baseDir, DEFAULT_NAS_PATH_SUFFIX));
     this.unzippedCodeDir = await processZipCodeIfNecessary(this.codeUri);
-    this.codeMount = await docker.resolveCodeUriToMount(this.unzippedCodeDir || this.codeUri);
+    this.codeMount = await docker.resolveCodeUriToMount(this.unzippedCodeDir || this.functionConfig?.originalCodeUri ? path.join(this.baseDir, this.functionConfig.originalCodeUri) : null);
     // TODO: 支持 nas mapping yaml file
     // this.nasMappingsMount = await docker.resolveNasYmlToMount(this.baseDir, this.serviceName);
     this.tmpDirMount = (!process.env.DISABLE_BIND_MOUNT_TMP_DIR || isFalseValue(process.env.DISABLE_BIND_MOUNT_TMP_DIR)) ? await docker.resolveTmpDirToMount(this.tmpDir) : null;

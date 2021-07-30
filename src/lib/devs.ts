@@ -49,9 +49,11 @@ export function detectTmpDir(devsPath: string, tmpDir?: string) {
 export function updateCodeUriWithBuildPath(baseDir: string, functionConfig: FunctionConfig, serviceName: string): FunctionConfig {
   const buildBasePath: string = path.join(baseDir, DEFAULT_BUILD_ARTIFACTS_PATH_SUFFIX);
   if (!fs.pathExistsSync(buildBasePath) || fs.lstatSync(buildBasePath).isFile() || isCustomContainerRuntime(functionConfig.runtime)) {
+    functionConfig.originalCodeUri = functionConfig.codeUri;
     return functionConfig;
   }
   const resolvedFunctionConfig: FunctionConfig = _.cloneDeep(functionConfig);
+  resolvedFunctionConfig.originalCodeUri = functionConfig.codeUri;
   resolvedFunctionConfig.codeUri = path.join(buildBasePath, serviceName, functionConfig.name);
   logger.info(StdoutFormatter.stdoutFormatter.using('build codeUri', resolvedFunctionConfig.codeUri));
   return resolvedFunctionConfig;

@@ -731,7 +731,7 @@ async function waitForExec(exec) {
     // so use inspect to check exec exit
     function waitContainerExec() {
       exec.inspect((err, data) => {
-        if (data.Running) {
+        if (data?.Running) {
           setTimeout(waitContainerExec, 100);
           return;
         }
