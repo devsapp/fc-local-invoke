@@ -38,7 +38,6 @@ export default class Invoke {
     invoke(req: any, res: any): Promise<void>;
     init(): Promise<void>;
     beforeInvoke(): Promise<void>;
-    showDebugIdeTips(): Promise<void>;
     setDebugIdeConfig(): Promise<void>;
     cleanUnzippedCodeDir(): void;
     afterInvoke(): Promise<void>;
