@@ -151,7 +151,6 @@ export default class HttpInvoke extends Invoke {
   async initAndStartRunner() {
     await this.init();
     await this._startRunner();
-    // await this.showDebugIdeTips();
     await this.setDebugIdeConfig();
   }
 

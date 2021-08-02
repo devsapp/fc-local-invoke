@@ -97,7 +97,6 @@ export default class Invoke {
     }
 
     await this.beforeInvoke();
-    // await this.showDebugIdeTips();
     await this.setDebugIdeConfig();
     // @ts-ignore
     await this.doInvoke(req, res);
@@ -154,24 +153,13 @@ export default class Invoke {
 
   }
 
-  async showDebugIdeTips() {
-    if (this.debugPort && this.debugIde) {
-      // not show tips if debugIde is null
-      if (this.debugIde.toLowerCase() === 'vscode') {
-        await docker.showDebugIdeTipsForVscode(this.serviceName, this.functionName, this.runtime, this.codeMount.Source, this.debugPort);
-      } else if (this.debugIde.toLowerCase() === 'pycharm') {
-        await docker.showDebugIdeTipsForPycharm(this.codeMount.Source, this.debugPort);
-      }
-    }
-  }
-
   async setDebugIdeConfig() {
     if (this.debugPort && this.debugIde) {
       if (this.debugIde.toLowerCase() === 'vscode') {
         // try to write .vscode/config.json
         await writeDebugIdeConfigForVscode(this.baseDir, this.serviceName, this.functionName, this.runtime, this.functionConfig?.originalCodeUri ? path.join(this.baseDir, this.functionConfig.originalCodeUri) : null, this.debugPort);
       } else if (this.debugIde.toLowerCase() === 'pycharm') {
-        await docker.showDebugIdeTipsForPycharm(this.codeMount.Source, this.debugPort);
+        await docker.showDebugIdeTipsForPycharm(this.functionConfig?.originalCodeUri ? path.join(this.baseDir, this.functionConfig.originalCodeUri) : null, this.debugPort);
       }
     }
   }
