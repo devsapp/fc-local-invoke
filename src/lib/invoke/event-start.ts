@@ -59,7 +59,6 @@ export default class EventStart extends Invoke {
       since: (new Date().getTime() / 1000)
     });
     console.log('Function container started successful.');
-    // await this.showDebugIdeTips();
     await this.setDebugIdeConfig();
   }
 }
