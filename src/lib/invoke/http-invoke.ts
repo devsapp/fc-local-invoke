@@ -9,19 +9,17 @@ import { FunctionConfig } from '../interface/fc-function';
 import { TriggerConfig } from '../interface/fc-trigger';
 import * as streams from 'memory-streams';
 import * as rimraf from 'rimraf';
-import { isIgnored as ignore } from '../ignore';
 import Invoke from './invoke';
 import * as docker from '../docker/docker';
 import * as dockerOpts from '../docker/docker-opts';
-
-const FC_HTTP_PARAMS: string = 'x-fc-http-params';
-
 import { startContainer } from '../docker/docker';
 import { validateSignature, parseOutputStream, getHttpRawBody, generateHttpParams, parseHttpTriggerHeaders, validateHeader, getFcReqHeaders, requestUntilServerUp, generateInitRequestOpts, generateRequestOpts } from './http';
 import { v4 as uuidv4 } from 'uuid';
 import { isCustomContainerRuntime } from '../common/model/runtime';
 import logger from '../../common/logger';
 import {ICredentials} from "../../common/entity";
+
+const FC_HTTP_PARAMS: string = 'x-fc-http-params';
 
 const isWin = process.platform === 'win32';
 
@@ -104,7 +102,7 @@ export default class HttpInvoke extends Invoke {
 
             if (!this.watcher && !isCustomContainerRuntime(this.runtime)) {
               // add file ignore when auto reloading
-              const ign = await ignore(this.baseDir);
+              const ign = await this.getCodeIgnore();
               this.watcher = watch(this.codeUri, {
                 recursive: true, persistent: false, filter: (f) => {
                   return ign && !ign(f);
