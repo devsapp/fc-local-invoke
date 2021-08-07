@@ -19,6 +19,8 @@ import { isCustomContainerRuntime } from '../common/model/runtime';
 import {writeDebugIdeConfigForVscode} from "../docker/docker";
 import {ICredentials} from "../../common/entity";
 import {isFalseValue} from "../utils/value";
+import {isIgnored, isIgnoredInCodeUri} from "../ignore";
+import * as fse from 'fs-extra';
 
 
 
@@ -174,5 +176,17 @@ export default class Invoke {
 
   async afterInvoke() {
     this.cleanUnzippedCodeDir();
+  }
+
+  async getCodeIgnore(): Promise<Function> {
+    const ignoreFileInCodeUri: string = path.join(path.resolve(this.baseDir, this.functionConfig?.codeUri), '.fcignore');
+    if (fse.pathExistsSync(ignoreFileInCodeUri) && fse.lstatSync(ignoreFileInCodeUri).isFile()) {
+      return await isIgnoredInCodeUri(path.resolve(this.baseDir, this.functionConfig?.codeUri), this.runtime);
+    }
+    const ignoreFileInBaseDir: string = path.join(this.baseDir, '.fcignore');
+    if (fse.pathExistsSync(ignoreFileInBaseDir) && fse.lstatSync(ignoreFileInBaseDir).isFile()) {
+      logger.warning('.fcignore file will be placed under codeUri only in the future. Please update it with the relative path and then move it to the codeUri as soon as possible.');
+    }
+    return await isIgnored(this.baseDir, this.runtime, path.resolve(this.baseDir, this.functionConfig?.codeUri), path.resolve(this.baseDir, this.functionConfig?.originalCodeUri || this.functionConfig?.codeUri));
   }
 }
