@@ -41,4 +41,5 @@ export default class Invoke {
     setDebugIdeConfig(): Promise<void>;
     cleanUnzippedCodeDir(): void;
     afterInvoke(): Promise<void>;
+    getCodeIgnore(): Promise<Function>;
 }
