@@ -327,9 +327,9 @@ function followProgress(stream: any, onFinished: any): void {
   docker.modem.followProgress(stream, onFinished, onProgress);
 }
 
-export async function pullImage(imageName: string): Promise<any> {
+export async function pullImage(imageName: string, needResolveImageName?: boolean): Promise<any> {
 
-  const resolveImageName: string = await dockerOpts.resolveImageNameForPull(imageName);
+  const resolveImageName: string = needResolveImageName ? await dockerOpts.resolveImageNameForPull(imageName) : imageName;
 
   // copied from lib/edge/container.js
   // const startTime: any = new Date();
@@ -490,12 +490,12 @@ export async function generateDockerEnvs(creds: ICredentials, region: string, ba
 }
 
 
-export async function pullImageIfNeed(imageName): Promise<void> {
+export async function pullImageIfNeed(imageName: string, needResolveImageName = true): Promise<void> {
   const exist: boolean = await imageExist(imageName);
 
   if (!exist || !skipPullImage) {
 
-    await pullImage(imageName);
+    await pullImage(imageName, needResolveImageName);
   } else {
     logger.debug(`skip pulling image ${imageName}...`);
     logger.info(`Skip pulling image ${imageName}...`);
