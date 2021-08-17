@@ -308,7 +308,8 @@ export function generateInitRequestOpts(req, port, fcHeaders) {
     headers: fcHeaders,
     uri: `http://localhost:${port}/initialize`,
     resolveWithFullResponse: true,
-    qs: req.query || {}
+    qs: req.query || {},
+    encoding: null
   };
   return opts;
 }
@@ -318,7 +319,8 @@ export function generateInvokeRequestOpts(port, fcReqHeaders, event) {
     method: 'POST',
     headers: fcReqHeaders,
     uri: `http://localhost:${port}/invoke`,
-    resolveWithFullResponse: true
+    resolveWithFullResponse: true,
+    encoding: null,
   };
   if (event.toString('utf8') !== '') {
     opts.body = event;
@@ -335,7 +337,8 @@ export function generateRequestOpts(req, port, fcReqHeaders, event) {
     headers: fcReqHeaders,
     uri: `http://localhost:${port}${req.originalUrl}`,
     resolveWithFullResponse: true,
-    qs: req.query
+    qs: req.query,
+    encoding: null,
   };
   if (event.toString('utf8') !== '') {
     opts.body = event;
