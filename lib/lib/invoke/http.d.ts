@@ -17,6 +17,7 @@ export declare function generateInitRequestOpts(req: any, port: any, fcHeaders: 
     uri: string;
     resolveWithFullResponse: boolean;
     qs: any;
+    encoding: any;
 };
 export declare function generateInvokeRequestOpts(port: any, fcReqHeaders: any, event: any): any;
 export declare function generateRequestOpts(req: any, port: any, fcReqHeaders: any, event: any): any;
