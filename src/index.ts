@@ -28,7 +28,7 @@ const app: any = express();
 const MIN_SERVER_PORT = 7000;
 const MAX_SERVER_PORT = 8000;
 
-const serverPort: number = parseInt(_.toString(Math.random() * (MAX_SERVER_PORT - MIN_SERVER_PORT + 1) + MIN_SERVER_PORT), 10);
+const DEFAULT_SERVER_PORT: number = parseInt(_.toString(Math.random() * (MAX_SERVER_PORT - MIN_SERVER_PORT + 1) + MIN_SERVER_PORT), 10);
 const SUPPORTED_MODES: string[] = ['api', 'server', 'normal'];
 export default class FcLocalInvokeComponent {
   async report(componentName: string, command: string, accountID?: string, access?: string): Promise<void> {
@@ -47,7 +47,7 @@ export default class FcLocalInvokeComponent {
     }
   }
 
-  startExpress(targetApp) {
+  startExpress(targetApp: any, serverPort: number) {
     const server = targetApp.listen(serverPort, () => {
       console.log(`function compute app listening on port ${serverPort}!`);
       console.log();
@@ -71,7 +71,7 @@ export default class FcLocalInvokeComponent {
     const projectName: string = project?.projectName;
     const { region } = properties;
 
-    const parsedArgs: {[key: string]: any} = core.commandParse({ args }, {
+    const parsedArgs: {[key: string]: any} = core.commandParse(inputs, {
       boolean: ['help'],
       alias: { help: 'h' } });
 
@@ -126,7 +126,6 @@ export default class FcLocalInvokeComponent {
       triggerConfigList,
       customDomainConfigList,
       region,
-      args,
       devsPath,
       nasBaseDir,
       baseDir,
@@ -137,7 +136,7 @@ export default class FcLocalInvokeComponent {
       core.help(START_HELP_INFO);
       return;
     }
-    const parsedArgs: {[key: string]: any} = core.commandParse({ args }, {
+    const parsedArgs: {[key: string]: any} = core.commandParse(inputs, {
       boolean: ['debug', 'help'],
       alias: { help: 'h',
         config: 'c',
@@ -172,6 +171,8 @@ export default class FcLocalInvokeComponent {
       debuggerPath,
       debugArgs,
     } = getDebugOptions(argsData);
+    const userDefinedServerPort: number = (argsData && argsData['server-port']) ? _.toInteger(argsData['server-port']) : null;
+
     const invokeName: string = nonOptionsArgs[0];
     logger.debug(`invokeName: ${invokeName}`);
     // TODO: debug mode for dotnetcore
@@ -199,8 +200,8 @@ export default class FcLocalInvokeComponent {
     });
 
     const eager = !_.isNil(debugPort);
-    await registerHttpTriggerByRoutes(credentials, region, devsPath, baseDir, app, router, serverPort, httpTrigger, serviceConfig, functionConfig, routePaths, domainName, debugPort, debugIde, debuggerPath, debugArgs, nasBaseDir, eager);
-    this.startExpress(app);
+    await registerHttpTriggerByRoutes(credentials, region, devsPath, baseDir, app, router, userDefinedServerPort || DEFAULT_SERVER_PORT, httpTrigger, serviceConfig, functionConfig, routePaths, domainName, debugPort, debugIde, debuggerPath, debugArgs, nasBaseDir, eager);
+    this.startExpress(app, userDefinedServerPort || DEFAULT_SERVER_PORT);
 
     showTipsWithDomainIfNecessary(customDomainConfigList, domainName);
     return {
@@ -219,7 +220,6 @@ export default class FcLocalInvokeComponent {
       functionConfig,
       triggerConfigList,
       region,
-      args,
       devsPath,
       nasBaseDir,
       baseDir,
@@ -231,7 +231,7 @@ export default class FcLocalInvokeComponent {
       core.help(INVOKE_HELP_INFO);
       return;
     }
-    const parsedArgs: {[key: string]: any} = core.commandParse({ args }, {
+    const parsedArgs: {[key: string]: any} = core.commandParse(inputs, {
       boolean: ['debug'],
       alias: { help: 'h',
         config: 'c',
@@ -269,6 +269,7 @@ export default class FcLocalInvokeComponent {
       debuggerPath,
       debugArgs,
     } = getDebugOptions(argsData);
+    const userDefinedServerPort: number = (argsData && argsData['server-port']) ? _.toInteger(argsData['server-port']) : null;
 
     // TODO: debug mode for dotnetcore
 
@@ -282,8 +283,8 @@ export default class FcLocalInvokeComponent {
 
     await ensureFilesModified(devsPath);
     if (mode === 'api') {
-      await registerApis(credentials, region, devsPath, baseDir, app, serverPort, serviceConfig, functionConfig, debugPort, debugIde, debuggerPath, debugArgs, nasBaseDir);
-      this.startExpress(app);
+      await registerApis(credentials, region, devsPath, baseDir, app, userDefinedServerPort || DEFAULT_SERVER_PORT, serviceConfig, functionConfig, debugPort, debugIde, debuggerPath, debugArgs, nasBaseDir);
+      this.startExpress(app, userDefinedServerPort || DEFAULT_SERVER_PORT);
     } else if (mode == 'server') {
       const tmpDir = await ensureTmpDir(null, devsPath, serviceName, functionName);
       const eventStart = new EventStart(credentials, region, baseDir, serviceConfig, functionConfig, null, debugPort, debugIde, tmpDir, null, null, nasBaseDir);
