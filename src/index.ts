@@ -1,4 +1,3 @@
-import BaseComponent from './common/base';
 import logger from './common/logger';
 import { InputProps, ICredentials, IProperties } from './common/entity';
 import * as _ from 'lodash';
@@ -23,18 +22,15 @@ import { COMPONENT_HELP_INFO, START_HELP_INFO, INVOKE_HELP_INFO } from './lib/st
 import * as fs from 'fs-extra';
 import StdoutFormatter from './lib/component/stdout-formatter';
 import express from 'express';
+
 const app: any = express();
 
-const MIN_SERVER_PORT: number = 7000;
-const MAX_SERVER_PORT: number = 8000;
+const MIN_SERVER_PORT = 7000;
+const MAX_SERVER_PORT = 8000;
 
-const serverPort: number = parseInt(_.toString(Math.random()*(MAX_SERVER_PORT-MIN_SERVER_PORT+1)+MIN_SERVER_PORT), 10); ;
+const serverPort: number = parseInt(_.toString(Math.random() * (MAX_SERVER_PORT - MIN_SERVER_PORT + 1) + MIN_SERVER_PORT), 10);
 const SUPPORTED_MODES: string[] = ['api', 'server', 'normal'];
-export default class FcLocalInvokeComponent extends BaseComponent {
-  constructor(props) {
-    super(props)
-  }
-
+export default class FcLocalInvokeComponent {
   async report(componentName: string, command: string, accountID?: string, access?: string): Promise<void> {
     let uid: string = accountID;
     if (!accountID && access) {
@@ -51,9 +47,8 @@ export default class FcLocalInvokeComponent extends BaseComponent {
     }
   }
 
-  startExpress(app) {
-
-    const server = app.listen(serverPort, function () {
+  startExpress(targetApp) {
+    const server = targetApp.listen(serverPort, () => {
       console.log(`function compute app listening on port ${serverPort}!`);
       console.log();
     });
@@ -88,7 +83,7 @@ export default class FcLocalInvokeComponent extends BaseComponent {
         curPath,
         args,
         access,
-        isHelp: true
+        isHelp: true,
       };
     }
 
@@ -115,7 +110,7 @@ export default class FcLocalInvokeComponent extends BaseComponent {
       projectName,
       devsPath,
       nasBaseDir,
-      baseDir
+      baseDir,
     };
   }
 
@@ -124,7 +119,7 @@ export default class FcLocalInvokeComponent extends BaseComponent {
    * @param inputs
    * @returns
    */
-  public async start(inputs: InputProps): Promise<any> {
+  async start(inputs: InputProps): Promise<any> {
     const {
       serviceConfig,
       functionConfig,
@@ -144,30 +139,30 @@ export default class FcLocalInvokeComponent extends BaseComponent {
     }
     const parsedArgs: {[key: string]: any} = core.commandParse({ args }, {
       boolean: ['debug', 'help'],
-      alias: { 'help': 'h',
-                'config': 'c',
-                'debug-port': 'd'
-              }
-      });
+      alias: { help: 'h',
+        config: 'c',
+        'debug-port': 'd',
+      },
+    });
     const argsData: any = parsedArgs?.data || {};
     const nonOptionsArgs = parsedArgs.data?._ || [];
 
     if (_.isEmpty(functionConfig)) {
-      logger.error(`Please add function config in your s.yml/yaml and retry start.`);
+      logger.error('Please add function config in your s.yml/yaml and retry start.');
       return {
-        status: 'failed'
+        status: 'failed',
       };
     }
     if (_.isEmpty(triggerConfigList)) {
-      logger.error(`Please local invoke http function with 'start' method in fc-local-invoke component.`);
+      logger.error('Please local invoke http function with \'start\' method in fc-local-invoke component.');
       return {
-        status: 'failed'
+        status: 'failed',
       };
     }
     if (functionConfig?.codeUri && !await fs.pathExists(functionConfig?.codeUri)) {
       logger.error(`Please make sure your codeUri: ${functionConfig.codeUri} exists and retry start.`);
       return {
-        status: 'failed'
+        status: 'failed',
       };
     }
 
@@ -175,7 +170,7 @@ export default class FcLocalInvokeComponent extends BaseComponent {
       debugPort,
       debugIde,
       debuggerPath,
-      debugArgs
+      debugArgs,
     } = getDebugOptions(argsData);
     const invokeName: string = nonOptionsArgs[0];
     logger.debug(`invokeName: ${invokeName}`);
@@ -188,7 +183,7 @@ export default class FcLocalInvokeComponent extends BaseComponent {
 
     const httpTrigger: TriggerConfig = findHttpTrigger(triggerConfigList);
     if (_.isEmpty(httpTrigger)) {
-      logger.error(`Start method only for the function with the http trigger.`);
+      logger.error('Start method only for the function with the http trigger.');
       return;
     }
     const [domainName, routePath] = parseDomainRoutePath(invokeName);
@@ -200,16 +195,16 @@ export default class FcLocalInvokeComponent extends BaseComponent {
     }
 
     const router = express.Router({
-      strict: true
+      strict: true,
     });
 
-    const eager: boolean = !_.isNil(debugPort);
+    const eager = !_.isNil(debugPort);
     await registerHttpTriggerByRoutes(credentials, region, devsPath, baseDir, app, router, serverPort, httpTrigger, serviceConfig, functionConfig, routePaths, domainName, debugPort, debugIde, debuggerPath, debugArgs, nasBaseDir, eager);
     this.startExpress(app);
 
     showTipsWithDomainIfNecessary(customDomainConfigList, domainName);
     return {
-      status: 'succeed'
+      status: 'succeed',
     };
   }
 
@@ -218,7 +213,7 @@ export default class FcLocalInvokeComponent extends BaseComponent {
    * @param inputs
    * @returns
    */
-  public async invoke(inputs: InputProps): Promise<any> {
+  async invoke(inputs: InputProps): Promise<any> {
     const {
       serviceConfig,
       functionConfig,
@@ -230,41 +225,41 @@ export default class FcLocalInvokeComponent extends BaseComponent {
       baseDir,
       projectName,
       isHelp,
-      credentials
+      credentials,
     } = await this.handlerInputs(inputs);
     if (isHelp) {
-      core.help(INVOKE_HELP_INFO)
+      core.help(INVOKE_HELP_INFO);
       return;
     }
     const parsedArgs: {[key: string]: any} = core.commandParse({ args }, {
       boolean: ['debug'],
-      alias: { 'help': 'h',
-                'config': 'c',
-                'mode': 'm',
-                'event': 'e',
-                'event-file': 'f',
-                'event-stdin': 's',
-                'debug-port': 'd'
-              }
-      });
+      alias: { help: 'h',
+        config: 'c',
+        mode: 'm',
+        event: 'e',
+        'event-file': 'f',
+        'event-stdin': 's',
+        'debug-port': 'd',
+      },
+    });
     const argsData: any = parsedArgs?.data || {};
 
     if (_.isEmpty(functionConfig)) {
-      logger.error(`Please add function config in your s.yml/yaml and retry start.`);
+      logger.error('Please add function config in your s.yml/yaml and retry start.');
       return {
-        status: 'failed'
+        status: 'failed',
       };
     }
     if (!_.isEmpty(triggerConfigList) && includeHttpTrigger(triggerConfigList)) {
-      logger.error(`Please local invoke non-http function with 'invoke' method in fc-local-invoke component.`);
+      logger.error('Please local invoke non-http function with \'invoke\' method in fc-local-invoke component.');
       return {
-        status: 'failed'
+        status: 'failed',
       };
     }
     if (functionConfig?.codeUri && !await fs.pathExists(functionConfig?.codeUri)) {
       logger.error(`Please make sure your codeUri: ${functionConfig.codeUri} exists and retry start.`);
       return {
-        status: 'failed'
+        status: 'failed',
       };
     }
 
@@ -272,14 +267,14 @@ export default class FcLocalInvokeComponent extends BaseComponent {
       debugPort,
       debugIde,
       debuggerPath,
-      debugArgs
+      debugArgs,
     } = getDebugOptions(argsData);
 
     // TODO: debug mode for dotnetcore
 
     const serviceName: string = serviceConfig?.name;
     const functionName: string = functionConfig?.name;
-    const mode: string = argsData['mode'];
+    const { mode } = argsData;
 
     if (mode && !SUPPORTED_MODES.includes(mode)) {
       throw new Error(`Unsupported mode: ${mode}`);
@@ -294,12 +289,12 @@ export default class FcLocalInvokeComponent extends BaseComponent {
       const eventStart = new EventStart(credentials, region, baseDir, serviceConfig, functionConfig, null, debugPort, debugIde, tmpDir, null, null, nasBaseDir);
       await eventStart.init();
       logger.log(`Invoke with server mode done, please open a new terminal and execute 's exec ${projectName} -- invoke' to reuse the container.`, 'yellow');
-      logger.log(`If you want to quit the server, please press Ctrl^C`, 'yellow');
+      logger.log('If you want to quit the server, please press Ctrl^C', 'yellow');
     } else {
       const event: string = await eventPriority(argsData);
       logger.debug(`event content: ${event}`);
-      const codeUri: string = functionConfig.codeUri;
-      const runtime: string = functionConfig.runtime;
+      const { codeUri } = functionConfig;
+      const { runtime } = functionConfig;
       await detectLibrary(codeUri, runtime, baseDir, functionName);
       // env 'DISABLE_BIND_MOUNT_TMP_DIR' to disable bind mount of tmp dir.
       // libreoffice will be failed if /tmp directory is bind mount by docker.
@@ -311,7 +306,7 @@ export default class FcLocalInvokeComponent extends BaseComponent {
       }
       logger.debug(`The temp directory mounted to /tmp is ${absTmpDir || 'null'}`);
       // Lazy loading to avoid stdin being taken over twice.
-      let reuse: boolean = true;
+      let reuse = true;
       if (mode && mode === 'normal') {
         reuse = false;
       }
@@ -322,13 +317,12 @@ export default class FcLocalInvokeComponent extends BaseComponent {
     }
     return {
       status: 'succeed',
-      mode
+      mode,
     };
   }
 
-  public async help(): Promise<void> {
+  async help(): Promise<void> {
     await this.report('fc-local-invoke', 'help');
     core.help(COMPONENT_HELP_INFO);
   }
-
 }

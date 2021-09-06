@@ -25,7 +25,7 @@ module.exports.handler = function (request, response, context) {
     // you can deal with your own logic here
 
     // set response
-    const respBody = Buffer.from(`requestHeader:${ headerStr }\n` + `url: ${ url }\n` + `path: ${ path }\n` + `queries: ${ queryStr }\n` + `method: ${ method }\n` + `clientIP: ${ clientIP }\n` + `body: ${ body }\n`);
+    const respBody = Buffer.from(`requestHeader:${ headerStr }\nurl: ${ url }\npath: ${ path }\nqueries: ${ queryStr }\nmethod: ${ method }\nclientIP: ${ clientIP }\nbody: ${ body }\n`);
     response.setStatusCode(200);
     response.setHeader('content-type', 'application/json');
     response.send(respBody);

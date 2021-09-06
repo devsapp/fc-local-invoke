@@ -1,9 +1,18 @@
 node_modules
-.s
-.idea
-.vscode
-.DS_Store
+**/.s
+
 package-lock.json
+
+**/.vscode
+**/.idea
+**/__pycache__
+.DS_Store
+
+.tmp
+example/java8-event/target
+
+doc/
+dist/
 
 **/.classpath
 **/.project

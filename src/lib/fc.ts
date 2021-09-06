@@ -5,13 +5,13 @@ import logger from '../common/logger';
 
 // TODO: python runtime .egg-info and .dist-info
 const runtimeTypeMapping: any = {
-  'nodejs6': ['node_modules', '.fun/root'],
-  'nodejs8': ['node_modules', '.fun/root'],
-  'nodejs10': ['node_modules', '.fun/root'],
-  'nodejs12': ['node_modules', '.fun/root'],
-  'python2.7': ['.fun/python', '.fun/root'],
-  'python3': ['.fun/python', '.fun/root'],
-  'php7.2': ['extension', 'vendor', '.fun/root']
+  'nodejs6': ['node_modules', '.s/root'],
+  'nodejs8': ['node_modules', '.s/root'],
+  'nodejs10': ['node_modules', '.s/root'],
+  'nodejs12': ['node_modules', '.s/root'],
+  'python2.7': ['.s/python', '.s/root'],
+  'python3': ['.s/python', '.s/root'],
+  'php7.2': ['extension', 'vendor', '.s/root']
 };
 
 async function detectLibraryFolders(dirName, libraryFolders, wrap, functionName) {
