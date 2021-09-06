@@ -21,3 +21,7 @@ export async function ensureTmpDir(tmpDir: string, devsPath: string, serviceName
 
   return absTmpDir;
 }
+
+export function isNccPath(targetPath: string): boolean {
+  return path.basename(targetPath) === 'dist';
+}

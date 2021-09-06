@@ -85,7 +85,7 @@ export function addInstallTargetEnv(envVars, targets) {
 export async function resolveLibPathsFromLdConf(baseDir: string, codeUri: string): Promise<any> {
   const envs = {};
   if (!codeUri) { return envs; }
-  const confdPath = path.resolve(baseDir, codeUri, '.fun/root/etc/ld.so.conf.d');
+  const confdPath = path.resolve(baseDir, codeUri, '.s/root/etc/ld.so.conf.d');
 
   if (! await fs.pathExists(confdPath)) { return envs; }
 
@@ -97,7 +97,7 @@ export async function resolveLibPathsFromLdConf(baseDir: string, codeUri: string
 
   if (!_.isEmpty(libPaths)) {
 
-    envs['LD_LIBRARY_PATH'] = libPaths.map(path => `/code/.fun/root${path}`).join(':');
+    envs['LD_LIBRARY_PATH'] = libPaths.map(path => `/code/.s/root${path}`).join(':');
   }
   return envs;
 }

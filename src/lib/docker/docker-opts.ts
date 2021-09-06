@@ -6,12 +6,20 @@ import { getUserIdAndGroupId } from '../definition';
 import nestedObjectAssign from 'nested-object-assign';
 import { generateDockerDebugOpts } from '../debug';
 import { isCustomContainerRuntime } from '../common/model/runtime';
-import * as path from 'path';
 import * as fs from 'fs-extra';
 import { mark } from '../profile';
+import p from "path";
+import {isNccPath} from "../utils/path";
 
-const pkgPath = path.join(__dirname, '..', '..', '..', 'package.json');
-const pkg = JSON.parse(fs.readFileSync(path.join(pkgPath), 'utf8'));
+
+let pkgPath;
+
+if (isNccPath(__dirname)) {
+  pkgPath = p.join(p.resolve(__dirname, '..'), 'package.json');
+} else {
+  pkgPath = p.join(p.resolve(__dirname, '..', '..', '..'), 'package.json');
+}
+const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
 
 const DEFAULT_REGISTRY: string = pkg['fc-docker'].registry_default || 'registry.hub.docker.com';
 export const DOCKER_REGISTRIES: string[] = pkg['fc-docker'].registry_mirrors || ['registry.hub.docker.com'];
