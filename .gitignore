@@ -12,7 +12,6 @@ package-lock.json
 example/java8-event/target
 
 doc/
-dist/
 
 **/.classpath
 **/.project
