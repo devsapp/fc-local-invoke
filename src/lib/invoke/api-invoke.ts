@@ -4,7 +4,7 @@ import Invoke from './invoke';
 import * as docker from '../docker/docker'
 import * as dockerOpts from '../docker/docker-opts';
 import { parseOutputStream, getFcReqHeaders, validateSignature, getHttpRawBody, generateInitRequestOpts, requestUntilServerUp, generateInvokeRequestOpts } from './http';
-import { isCustomContainerRuntime } from '../common/model/runtime';
+import {isCustomContainerRuntime, isCustomRuntime} from '../common/model/runtime';
 
 import { ServiceConfig } from '../interface/fc-service';
 import { FunctionConfig } from '../interface/fc-function';
@@ -38,7 +38,7 @@ export default class ApiInvoke extends Invoke {
 
     // check signature
     if (!await validateSignature(req, res, req.method, this.creds)) { return; }
-    if (isCustomContainerRuntime(this.runtime)) {
+    if (isCustomContainerRuntime(this.runtime) || isCustomRuntime(this.runtime)) {
       const opts = await dockerOpts.generateLocalStartOpts(this.runtime,
         containerName,
         this.mounts,

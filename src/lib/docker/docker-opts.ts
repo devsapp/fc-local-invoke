@@ -5,7 +5,7 @@ import logger from '../../common/logger';
 import { getUserIdAndGroupId } from '../definition';
 import nestedObjectAssign from 'nested-object-assign';
 import { generateDockerDebugOpts } from '../debug';
-import { isCustomContainerRuntime } from '../common/model/runtime';
+import {isCustomContainerRuntime, isCustomRuntime} from '../common/model/runtime';
 import * as fs from 'fs-extra';
 import { mark } from '../profile';
 import p from "path";
@@ -214,16 +214,34 @@ export async function generateLocalStartOpts(runtime, name, mounts, cmd, envs, {
   if (isCustomContainerRuntime(runtime)) {
     return genCustomContainerLocalStartOpts(name, mounts, cmd, envs, imageName, caPort);
   }
-  return await genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde);
+  return await genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde, caPort);
 }
 
-async function genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde) {
+async function genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde, caPort = 9000) {
   const hostOpts = {
     HostConfig: {
       AutoRemove: true,
       Mounts: mounts
     }
   };
+  if (isCustomRuntime(runtime)) {
+    const exposedPort = `${caPort}/tcp`;
+    Object.assign(hostOpts, {
+      ExposedPorts: {
+        [exposedPort]: {}
+      },
+    });
+    Object.assign(hostOpts.HostConfig, {
+      PortBindings: {
+        [exposedPort]: [
+          {
+            'HostIp': '',
+            'HostPort': `${caPort}`
+          }
+        ]
+      }
+    });
+  }
 
   let debugOpts = {};
 
@@ -273,7 +291,7 @@ export function encryptDockerOpts(dockerOpts: any): any {
 //  * 支持通过 BOOTSTRAP_FILE 环境变量改变 bootstrap 文件名。
 // **/
 function supportCustomBootstrapFile(runtime, envs) {
-  if (runtime === 'custom') {
+  if (isCustomRuntime(runtime)) {
     if (envs['BOOTSTRAP_FILE']) {
       envs['AGENT_SCRIPT'] = envs['BOOTSTRAP_FILE'];
     }
