@@ -8,7 +8,7 @@ import { TriggerConfig } from '../interface/fc-trigger';
 import dockerOpts = require('../docker/docker-opts');
 import { getFcReqHeaders, generateInitRequestOpts, requestUntilServerUp, generateInvokeRequestOpts } from './http';
 import { v4 as uuidv4 } from 'uuid';
-import { isCustomContainerRuntime } from '../common/model/runtime';
+import {isCustomContainerRuntime, isCustomRuntime} from '../common/model/runtime';
 import logger from '../../common/logger';
 import {ICredentials} from "../../common/entity";
 
@@ -30,7 +30,7 @@ export default class LocalInvoke extends Invoke {
       this.functionConfig,
       false
     );
-    if (isCustomContainerRuntime(this.runtime)) {
+    if (isCustomContainerRuntime(this.runtime) || isCustomRuntime(this.runtime)) {
       this.opts = await dockerOpts.generateLocalStartOpts(this.runtime,
         this.containerName,
         this.mounts,
@@ -70,7 +70,7 @@ export default class LocalInvoke extends Invoke {
       }
       if (containers && containers.length) {
         const container = await docker.getContainer(containers[0].Id);
-        if (isCustomContainerRuntime(this.runtime)) {
+        if (isCustomContainerRuntime(this.runtime) || isCustomRuntime(this.runtime)) {
           if (this.functionConfig.initializer && invokeInitializer) {
             await docker.renameContainer(container, containerName + '-inited');
           }
@@ -94,7 +94,7 @@ export default class LocalInvoke extends Invoke {
         }
       }
     }
-    if (isCustomContainerRuntime(this.runtime)) {
+    if (isCustomContainerRuntime(this.runtime) || isCustomRuntime(this.runtime)) {
       let container;
       if (!containerUp) {
         const containerRunner = await docker.runContainer(this.opts,

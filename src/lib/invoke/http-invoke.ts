@@ -15,7 +15,7 @@ import * as dockerOpts from '../docker/docker-opts';
 import { startContainer } from '../docker/docker';
 import { validateSignature, parseOutputStream, getHttpRawBody, generateHttpParams, parseHttpTriggerHeaders, validateHeader, getFcReqHeaders, requestUntilServerUp, generateInitRequestOpts, generateRequestOpts } from './http';
 import { v4 as uuidv4 } from 'uuid';
-import { isCustomContainerRuntime } from '../common/model/runtime';
+import {isCustomContainerRuntime, isCustomRuntime} from '../common/model/runtime';
 import logger from '../../common/logger';
 import {ICredentials} from "../../common/entity";
 
@@ -187,7 +187,7 @@ export default class HttpInvoke extends Invoke {
       } else {
         // reuse container
         logger.debug('http doInvoke, acquire invoke lock');
-        if (isCustomContainerRuntime(this.runtime)) {
+        if (isCustomContainerRuntime(this.runtime) || isCustomRuntime(this.runtime)) {
           const fcReqHeaders = getFcReqHeaders(req.headers, uuidv4(), envs);
           if (this.functionConfig.initializer && this._invokeInitializer) {
             logger.info('Initializing...');
@@ -276,7 +276,7 @@ export default class HttpInvoke extends Invoke {
 
     const { statusCode, headers, body, billedTime, memoryUsage } = parseOutputStream(outputStream);
 
-    if (this.runtime === 'custom') {
+    if (isCustomRuntime(this.runtime)) {
       res.status(statusCode);
       res.set(headers);
       res.send(body);

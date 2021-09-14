@@ -64,7 +64,7 @@
     "uuid": "^8.3.2"
   },
   "fc-docker": {
-    "version": "1.9.18",
+    "version": "1.9.20",
     "registry_default": "registry.cn-beijing.aliyuncs.com",
     "registry_mirrors": [
       "registry.cn-beijing.aliyuncs.com",
