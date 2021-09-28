@@ -7,6 +7,7 @@ import watch from 'node-watch';
 import { ServiceConfig } from '../interface/fc-service';
 import { FunctionConfig } from '../interface/fc-function';
 import { TriggerConfig } from '../interface/fc-trigger';
+import * as core from '@serverless-devs/core';
 import * as streams from 'memory-streams';
 import * as rimraf from 'rimraf';
 import Invoke from './invoke';
@@ -33,6 +34,7 @@ export default class HttpInvoke extends Invoke {
   private _invokeInitializer: boolean;
   private runner: any;
   private watcher?: any;
+  private limitedHostConfig?: any;
   constructor(creds: ICredentials, region: string, baseDir: string, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, triggerConfig?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, authType?: string, endpointPrefix?: string, debuggerPath?: any, debugArgs?: any, nasBaseDir?: string) {
     super(creds, region, baseDir, serviceConfig, functionConfig, triggerConfig, debugPort, debugIde, tmpDir, debuggerPath, debugArgs, nasBaseDir);
 
@@ -129,11 +131,16 @@ export default class HttpInvoke extends Invoke {
     const envs = await docker.generateDockerEnvs(this.creds, this.region, this.baseDir, this.serviceName, this.serviceConfig, this.functionName, this.functionConfig, this.debugPort, null, this.nasConfig, true, this.debugIde, this.debugArgs);
     const cmd = docker.generateDockerCmd(this.runtime, true, this.functionConfig);
 
+    const fcCommon = await core.loadComponent('devsapp/fc-common');
+    this.limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+    logger.debug(this.limitedHostConfig);
+
     const opts = await dockerOpts.generateLocalStartOpts(this.runtime,
       this.containerName,
       this.mounts,
       cmd,
       envs,
+      this.limitedHostConfig,
       {
         debugPort: this.debugPort,
         dockerUser: this.dockerUser,
@@ -176,6 +183,7 @@ export default class HttpInvoke extends Invoke {
           cmd,
           this.debugPort,
           envs,
+          this.limitedHostConfig,
           this.dockerUser,
           this.debugIde
         );

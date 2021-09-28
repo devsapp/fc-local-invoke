@@ -2,7 +2,7 @@
 import Invoke from './invoke';
 import * as docker from '../docker/docker'
 import * as dockerOpts from '../docker/docker-opts';
-
+import * as core from '@serverless-devs/core';
 import { ServiceConfig } from '../interface/fc-service';
 import { FunctionConfig } from '../interface/fc-function';
 import { TriggerConfig } from '../interface/fc-trigger';
@@ -37,12 +37,17 @@ export default class EventStart extends Invoke {
       logger.debug('all containers stopped');
     }
 
+    const fcCommon = await core.loadComponent('devsapp/fc-common');
+    const limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+    logger.debug(limitedHostConfig);
+
     const cmd = docker.generateDockerCmd(this.runtime, true, this.functionConfig);
     this.opts = await dockerOpts.generateLocalStartOpts(this.runtime,
       this.containerName,
       this.mounts,
       cmd,
       this.envs,
+      limitedHostConfig,
       {
         debugPort: this.debugPort,
         dockerUser: this.dockerUser,

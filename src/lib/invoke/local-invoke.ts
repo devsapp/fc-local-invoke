@@ -1,6 +1,6 @@
 'use strict';
 import Invoke from './invoke';
-
+import * as core from '@serverless-devs/core';
 import docker = require('../docker/docker');
 import { ServiceConfig } from '../interface/fc-service';
 import { FunctionConfig } from '../interface/fc-function';
@@ -30,12 +30,18 @@ export default class LocalInvoke extends Invoke {
       this.functionConfig,
       false
     );
+
+    const fcCommon = await core.loadComponent('devsapp/fc-common');
+    const limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+    logger.debug(limitedHostConfig);
+
     if (isCustomContainerRuntime(this.runtime) || isCustomRuntime(this.runtime)) {
       this.opts = await dockerOpts.generateLocalStartOpts(this.runtime,
         this.containerName,
         this.mounts,
         this.cmd,
         this.envs,
+        limitedHostConfig,
         {
           debugPort: this.debugPort,
           dockerUser: this.dockerUser,
@@ -50,6 +56,7 @@ export default class LocalInvoke extends Invoke {
         this.cmd,
         this.debugPort,
         this.envs,
+        limitedHostConfig,
         this.dockerUser,
         this.debugIde);
     }
@@ -77,6 +84,9 @@ export default class LocalInvoke extends Invoke {
 
           containerUp = true;
         } else {
+          const fcCommon = await core.loadComponent('devsapp/fc-common');
+          const limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+          logger.debug(limitedHostConfig);
           const cmd = [dockerOpts.resolveMockScript(this.runtime), ...docker.generateDockerCmd(this.runtime, false, this.functionConfig, false, invokeInitializer, event )];
           const opts = await dockerOpts.generateLocalInvokeOpts(this.runtime,
             this.containerName,
@@ -84,6 +94,7 @@ export default class LocalInvoke extends Invoke {
             cmd,
             this.debugPort,
             this.envs,
+            limitedHostConfig,
             this.dockerUser,
             this.debugIde);
           await docker.execContainer(container, opts, outputStream, errorStream);
