@@ -44,7 +44,7 @@ const runtimeImageMap: {[key: string]: string} = {
   'custom': 'custom'
 };
 
-const IMAGE_VERSION: string = process.env.FC_DOCKER_VERSION || pkg['fc-docker'].version || '1.9.17';
+const IMAGE_VERSION: string = process.env.FC_DOCKER_VERSION || pkg['fc-docker'].version || '1.9.21';
 
 export async function resolveImageNameForPull(imageName: string): Promise<string> {
 
@@ -152,11 +152,12 @@ export function transformPathForVirtualBox(source) {
   return '/' + lowerFirstAndReplace;
 }
 
-export async function generateLocalInvokeOpts(runtime, containerName, mounts, cmd, debugPort, envs, dockerUser, debugIde) {
+export async function generateLocalInvokeOpts(runtime, containerName, mounts, cmd, debugPort, envs, limitedHostConfig, dockerUser, debugIde) {
   const hostOpts = {
     HostConfig: {
       AutoRemove: true,
-      Mounts: mounts
+      Mounts: mounts,
+      ...limitedHostConfig
     }
   };
 
@@ -210,18 +211,21 @@ export function generateContainerName(serviceName: string, functionName: string,
     + (debugPort ? '-debug' : '-run');
 }
 
-export async function generateLocalStartOpts(runtime, name, mounts, cmd, envs, { debugPort, dockerUser, debugIde = null, imageName, caPort = 9000 }) {
+export async function generateLocalStartOpts(runtime, name, mounts, cmd, envs, limitedHostConfig, { debugPort, dockerUser, debugIde = null, imageName, caPort = 9000 }) {
   if (isCustomContainerRuntime(runtime)) {
-    return genCustomContainerLocalStartOpts(name, mounts, cmd, envs, imageName, caPort);
+    return genCustomContainerLocalStartOpts(name, mounts, cmd, envs, limitedHostConfig,imageName, caPort);
   }
-  return await genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde, caPort);
+
+  return await genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, debugPort, envs,limitedHostConfig, dockerUser, debugIde, caPort);
 }
 
-async function genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, debugPort, envs, dockerUser, debugIde, caPort = 9000) {
+async function genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, debugPort, envs, limitedHostConfig, dockerUser, debugIde,caPort = 9000) {
+
   const hostOpts = {
     HostConfig: {
       AutoRemove: true,
-      Mounts: mounts
+      Mounts: mounts,
+      ...limitedHostConfig
     }
   };
   if (isCustomRuntime(runtime)) {
@@ -302,7 +306,7 @@ export function resolveMockScript(runtime: string): string {
   return `/var/fc/runtime/${runtime}/mock`;
 }
 
-function genCustomContainerLocalStartOpts(name, mounts, cmd, envs, imageName, caPort = 9000) {
+function genCustomContainerLocalStartOpts(name, mounts, cmd, envs, limitedHostConfig, imageName, caPort = 9000) {
   const exposedPort = `${caPort}/tcp`;
   const hostOpts = {
     ExposedPorts: {
@@ -311,6 +315,7 @@ function genCustomContainerLocalStartOpts(name, mounts, cmd, envs, imageName, ca
     HostConfig: {
       AutoRemove: true,
       Mounts: mounts,
+      ...limitedHostConfig,
       PortBindings: {
         [exposedPort]: [
           {

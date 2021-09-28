@@ -3,6 +3,7 @@
 import Invoke from './invoke';
 import * as docker from '../docker/docker'
 import * as dockerOpts from '../docker/docker-opts';
+import * as core from '@serverless-devs/core';
 import { parseOutputStream, getFcReqHeaders, validateSignature, getHttpRawBody, generateInitRequestOpts, requestUntilServerUp, generateInvokeRequestOpts } from './http';
 import {isCustomContainerRuntime, isCustomRuntime} from '../common/model/runtime';
 
@@ -36,6 +37,10 @@ export default class ApiInvoke extends Invoke {
     const outputStream = new streams.WritableStream();
     const errorStream = new streams.WritableStream();
 
+    const fcCommon = await core.loadComponent('devsapp/fc-common');
+    const limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+    logger.debug(limitedHostConfig);
+
     // check signature
     if (!await validateSignature(req, res, req.method, this.creds)) { return; }
     if (isCustomContainerRuntime(this.runtime) || isCustomRuntime(this.runtime)) {
@@ -44,6 +49,7 @@ export default class ApiInvoke extends Invoke {
         this.mounts,
         this.cmd,
         this.envs,
+        limitedHostConfig,
         {
           debugPort: this.debugPort,
           dockerUser: this.dockerUser,
@@ -84,6 +90,7 @@ export default class ApiInvoke extends Invoke {
         this.cmd,
         this.debugPort,
         this.envs,
+        limitedHostConfig,
         this.dockerUser,
         this.debugIde);
       await docker.run(opts,
