@@ -92,7 +92,7 @@ export default class FcLocalInvokeComponent {
     const baseDir: string = path.dirname(devsPath);
 
     const serviceConfig: ServiceConfig = properties?.service;
-    const functionConfig: FunctionConfig = updateCodeUriWithBuildPath(baseDir, properties?.function, serviceConfig.name);
+    const functionConfig: FunctionConfig = await updateCodeUriWithBuildPath(baseDir, properties?.function, serviceConfig.name);
     const triggerConfigList: TriggerConfig[] = properties?.triggers;
     const customDomainConfigList: CustomDomainConfig[] = properties?.customDomains;
 
