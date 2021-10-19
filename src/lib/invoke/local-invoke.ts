@@ -31,7 +31,7 @@ export default class LocalInvoke extends Invoke {
       false
     );
 
-    const fcCommon = await core.loadComponent('devsapp/fc-common');
+    const fcCommon = await core.loadComponent('devsapp/fc-common@dev');
     const limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
     logger.debug(limitedHostConfig);
 
@@ -84,7 +84,7 @@ export default class LocalInvoke extends Invoke {
 
           containerUp = true;
         } else {
-          const fcCommon = await core.loadComponent('devsapp/fc-common');
+          const fcCommon = await core.loadComponent('devsapp/fc-common@dev');
           const limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
           logger.debug(limitedHostConfig);
           const cmd = [dockerOpts.resolveMockScript(this.runtime), ...docker.generateDockerCmd(this.runtime, false, this.functionConfig, false, invokeInitializer, event )];

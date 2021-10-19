@@ -37,7 +37,7 @@ export default class ApiInvoke extends Invoke {
     const outputStream = new streams.WritableStream();
     const errorStream = new streams.WritableStream();
 
-    const fcCommon = await core.loadComponent('devsapp/fc-common');
+    const fcCommon = await core.loadComponent('devsapp/fc-common@dev');
     const limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
     logger.debug(limitedHostConfig);
 

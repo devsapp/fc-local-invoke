@@ -131,7 +131,7 @@ export default class HttpInvoke extends Invoke {
     const envs = await docker.generateDockerEnvs(this.creds, this.region, this.baseDir, this.serviceName, this.serviceConfig, this.functionName, this.functionConfig, this.debugPort, null, this.nasConfig, true, this.debugIde, this.debugArgs);
     const cmd = docker.generateDockerCmd(this.runtime, true, this.functionConfig);
 
-    const fcCommon = await core.loadComponent('devsapp/fc-common');
+    const fcCommon = await core.loadComponent('devsapp/fc-common@dev');
     this.limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
     logger.debug(this.limitedHostConfig);
 

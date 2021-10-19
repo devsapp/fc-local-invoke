@@ -37,7 +37,7 @@ export default class EventStart extends Invoke {
       logger.debug('all containers stopped');
     }
 
-    const fcCommon = await core.loadComponent('devsapp/fc-common');
+    const fcCommon = await core.loadComponent('devsapp/fc-common@dev');
     const limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
     logger.debug(limitedHostConfig);
 
