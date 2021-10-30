@@ -37,9 +37,21 @@ export default class EventStart extends Invoke {
       logger.debug('all containers stopped');
     }
 
-    const fcCommon = await core.loadComponent('devsapp/fc-common');
-    const limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
-    logger.debug(limitedHostConfig);
+    let limitedHostConfig;
+    try {
+      const fcCommon = await core.loadComponent('devsapp/fc-common');
+      limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+      logger.debug(limitedHostConfig);
+    } catch (err) {
+      logger.debug(err);
+      logger.warning("Try to generate the container's resource limit configuration but failed. The default configuration of docker will be used.");
+      limitedHostConfig = {
+        CpuPeriod: null,
+        CpuQuota: null,
+        Memory: null,
+        Ulimits: null,
+      };
+    }
 
     const cmd = docker.generateDockerCmd(this.runtime, true, this.functionConfig);
     this.opts = await dockerOpts.generateLocalStartOpts(this.runtime,
