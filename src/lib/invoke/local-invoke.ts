@@ -8,49 +8,80 @@ import { TriggerConfig } from '../interface/fc-trigger';
 import dockerOpts = require('../docker/docker-opts');
 import { getFcReqHeaders, generateInitRequestOpts, requestUntilServerUp, generateInvokeRequestOpts } from './http';
 import { v4 as uuidv4 } from 'uuid';
-import {isCustomContainerRuntime, isCustomRuntime} from '../common/model/runtime';
+import { isCustomContainerRuntime, isCustomRuntime } from '../common/model/runtime';
 import logger from '../../common/logger';
-import {ICredentials} from "../../common/entity";
+import { ICredentials } from '../../common/entity';
 
 export default class LocalInvoke extends Invoke {
   private reuse: boolean;
   private envs: any;
   private cmd: string[];
   private opts: any;
-  constructor(creds: ICredentials, region: string, baseDir: string, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, triggerConfig?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, debuggerPath?: any, debugArgs?: any, reuse?: boolean, nasBaseDir?: string) {
+  constructor(
+    creds: ICredentials,
+    region: string,
+    baseDir: string,
+    serviceConfig: ServiceConfig,
+    functionConfig: FunctionConfig,
+    triggerConfig?: TriggerConfig,
+    debugPort?: number,
+    debugIde?: any,
+    tmpDir?: string,
+    debuggerPath?: any,
+    debugArgs?: any,
+    reuse?: boolean,
+    nasBaseDir?: string,
+  ) {
     super(creds, region, baseDir, serviceConfig, functionConfig, triggerConfig, debugPort, debugIde, tmpDir, debuggerPath, debugArgs, nasBaseDir);
     this.reuse = reuse;
   }
 
-
   async init() {
     await super.init();
-    this.envs = await docker.generateDockerEnvs(this.creds, this.region, this.baseDir, this.serviceName, this.serviceConfig, this.functionName, this.functionConfig, this.debugPort, null, this.nasConfig, false, this.debugIde, this.debugArgs);
-    this.cmd = docker.generateDockerCmd(this.runtime, false,
+    this.envs = await docker.generateDockerEnvs(
+      this.creds,
+      this.region,
+      this.baseDir,
+      this.serviceName,
+      this.serviceConfig,
+      this.functionName,
       this.functionConfig,
-      false
+      this.debugPort,
+      null,
+      this.nasConfig,
+      false,
+      this.debugIde,
+      this.debugArgs,
     );
+    this.cmd = docker.generateDockerCmd(this.runtime, false, this.functionConfig, false);
 
-    const fcCommon = await core.loadComponent('devsapp/fc-common');
-    const limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
-    logger.debug(limitedHostConfig);
+    let limitedHostConfig;
+    try {
+      const fcCommon = await core.loadComponent('devsapp/fc-common');
+      limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+      logger.debug(limitedHostConfig);
+    } catch (err) {
+      logger.debug(err);
+      logger.warning("Try to generate the container's resource limit configuration but failed. The default configuration of docker will be used.");
+      limitedHostConfig = {
+        CpuPeriod: null,
+        CpuQuota: null,
+        Memory: null,
+        Ulimits: null,
+      };
+    }
 
     if (isCustomContainerRuntime(this.runtime) || isCustomRuntime(this.runtime)) {
-      this.opts = await dockerOpts.generateLocalStartOpts(this.runtime,
-        this.containerName,
-        this.mounts,
-        this.cmd,
-        this.envs,
-        limitedHostConfig,
-        {
-          debugPort: this.debugPort,
-          dockerUser: this.dockerUser,
-          debugIde: this.debugIde,
-          imageName: this.imageName,
-          caPort: this.functionConfig.caPort
-        });
+      this.opts = await dockerOpts.generateLocalStartOpts(this.runtime, this.containerName, this.mounts, this.cmd, this.envs, limitedHostConfig, {
+        debugPort: this.debugPort,
+        dockerUser: this.dockerUser,
+        debugIde: this.debugIde,
+        imageName: this.imageName,
+        caPort: this.functionConfig.caPort,
+      });
     } else {
-      this.opts = await dockerOpts.generateLocalInvokeOpts(this.runtime,
+      this.opts = await dockerOpts.generateLocalInvokeOpts(
+        this.runtime,
         this.containerName,
         this.mounts,
         this.cmd,
@@ -58,7 +89,8 @@ export default class LocalInvoke extends Invoke {
         this.envs,
         limitedHostConfig,
         this.dockerUser,
-        this.debugIde);
+        this.debugIde,
+      );
     }
   }
 
@@ -84,11 +116,29 @@ export default class LocalInvoke extends Invoke {
 
           containerUp = true;
         } else {
-          const fcCommon = await core.loadComponent('devsapp/fc-common');
-          const limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
-          logger.debug(limitedHostConfig);
-          const cmd = [dockerOpts.resolveMockScript(this.runtime), ...docker.generateDockerCmd(this.runtime, false, this.functionConfig, false, invokeInitializer, event )];
-          const opts = await dockerOpts.generateLocalInvokeOpts(this.runtime,
+          let limitedHostConfig;
+          try {
+            const fcCommon = await core.loadComponent('devsapp/fc-common');
+            limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+            logger.debug(limitedHostConfig);
+          } catch (err) {
+            logger.debug(err);
+            logger.warning(
+              "Try to generate the container's resource limit configuration but failed. The default configuration of docker will be used.",
+            );
+            limitedHostConfig = {
+              CpuPeriod: null,
+              CpuQuota: null,
+              Memory: null,
+              Ulimits: null,
+            };
+          }
+          const cmd = [
+            dockerOpts.resolveMockScript(this.runtime),
+            ...docker.generateDockerCmd(this.runtime, false, this.functionConfig, false, invokeInitializer, event),
+          ];
+          const opts = await dockerOpts.generateLocalInvokeOpts(
+            this.runtime,
             this.containerName,
             this.mounts,
             cmd,
@@ -96,7 +146,8 @@ export default class LocalInvoke extends Invoke {
             this.envs,
             limitedHostConfig,
             this.dockerUser,
-            this.debugIde);
+            this.debugIde,
+          );
           await docker.execContainer(container, opts, outputStream, errorStream);
           if (invokeInitializer) {
             await docker.renameContainer(container, containerName + '-inited');
@@ -108,14 +159,10 @@ export default class LocalInvoke extends Invoke {
     if (isCustomContainerRuntime(this.runtime) || isCustomRuntime(this.runtime)) {
       let container;
       if (!containerUp) {
-        const containerRunner = await docker.runContainer(this.opts,
-          outputStream,
-          errorStream,
-          {
-            serviceName: this.serviceName,
-            functionName: this.functionName
-          }
-        );
+        const containerRunner = await docker.runContainer(this.opts, outputStream, errorStream, {
+          serviceName: this.serviceName,
+          functionName: this.functionName,
+        });
         container = containerRunner.container;
       }
       // send request
@@ -139,16 +186,10 @@ export default class LocalInvoke extends Invoke {
         await docker.exitContainer(container);
       }
     } else {
-      await docker.run(this.opts,
-        event,
-        outputStream,
-        errorStream,
-        {
-          serviceName: this.serviceName,
-          functionName: this.functionName
-        }
-      );
+      await docker.run(this.opts, event, outputStream, errorStream, {
+        serviceName: this.serviceName,
+        functionName: this.functionName,
+      });
     }
-
   }
 }

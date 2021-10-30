@@ -131,9 +131,21 @@ export default class HttpInvoke extends Invoke {
     const envs = await docker.generateDockerEnvs(this.creds, this.region, this.baseDir, this.serviceName, this.serviceConfig, this.functionName, this.functionConfig, this.debugPort, null, this.nasConfig, true, this.debugIde, this.debugArgs);
     const cmd = docker.generateDockerCmd(this.runtime, true, this.functionConfig);
 
-    const fcCommon = await core.loadComponent('devsapp/fc-common');
-    this.limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
-    logger.debug(this.limitedHostConfig);
+    let limitedHostConfig;
+    try {
+      const fcCommon = await core.loadComponent('devsapp/fc-common');
+      limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+      logger.debug(limitedHostConfig);
+    } catch (err) {
+      logger.debug(err);
+      logger.warning("Try to generate the container's resource limit configuration but failed. The default configuration of docker will be used.");
+      limitedHostConfig = {
+        CpuPeriod: null,
+        CpuQuota: null,
+        Memory: null,
+        Ulimits: null,
+      };
+    }
 
     const opts = await dockerOpts.generateLocalStartOpts(this.runtime,
       this.containerName,
