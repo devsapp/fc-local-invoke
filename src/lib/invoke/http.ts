@@ -2,13 +2,12 @@
 
 import { ICredentials } from '../../common/entity'
 import { sleep } from '../time';
+import * as core from '@serverless-devs/core';
 import logger from '../../common/logger';
 const getRawBody = require('raw-body');
 const FC = require('@alicloud/fc2');
 
 const { parseHeaders, parseStatusLine } = require('http-string-parser');
-const rp = require('request-promise');
-// rp.debug = true;
 
 
 // https://stackoverflow.com/questions/14313183/javascript-regex-how-do-i-check-if-the-string-is-ascii-only
@@ -261,7 +260,7 @@ export async function requestUntilServerUp(opts, timeout): Promise<any> {
   var resp = {};
   while (!serverEstablished) {
     try {
-      resp = await rp(opts);
+      resp = await core.request(opts.uri, opts);
       serverEstablished = true;
     } catch (error) {
       if ((error.message.indexOf('socket hang up') !== -1 || !error.response) && retryTimes >= 0) {

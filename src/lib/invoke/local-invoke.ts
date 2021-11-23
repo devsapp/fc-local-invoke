@@ -1,4 +1,5 @@
 'use strict';
+import _ from 'lodash';
 import Invoke from './invoke';
 import * as core from '@serverless-devs/core';
 import docker = require('../docker/docker');
@@ -178,9 +179,9 @@ export default class LocalInvoke extends Invoke {
       }
 
       const requestOpts = generateInvokeRequestOpts(this.functionConfig.caPort, fcReqHeaders, event);
-
+      
       const respOfCustomContainer = await requestUntilServerUp(requestOpts, this.functionConfig.timeout || 3);
-      logger.log(respOfCustomContainer.body);
+      logger.log(_.isObject(respOfCustomContainer) ? JSON.stringify(respOfCustomContainer, null, 2) : respOfCustomContainer);
       // exit container
       if (!containerUp) {
         await docker.exitContainer(container);
