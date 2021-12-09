@@ -2,7 +2,7 @@ import Invoke from './invoke';
 import { ServiceConfig } from '../interface/fc-service';
 import { FunctionConfig } from '../interface/fc-function';
 import { TriggerConfig } from '../interface/fc-trigger';
-import { ICredentials } from "../../common/entity";
+import { ICredentials } from '../../common/entity';
 export default class LocalInvoke extends Invoke {
     private reuse;
     private envs;
