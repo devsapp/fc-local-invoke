@@ -22,6 +22,7 @@ import { COMPONENT_HELP_INFO, START_HELP_INFO, INVOKE_HELP_INFO } from './lib/st
 import * as fs from 'fs-extra';
 import StdoutFormatter from './lib/component/stdout-formatter';
 import express from 'express';
+import { isCustomContainerRuntime, isCustomRuntime } from './lib/common/model/runtime';
 
 const app: any = express();
 
@@ -30,6 +31,7 @@ const MAX_SERVER_PORT = 8000;
 
 const DEFAULT_SERVER_PORT: number = parseInt(_.toString(Math.random() * (MAX_SERVER_PORT - MIN_SERVER_PORT + 1) + MIN_SERVER_PORT), 10);
 const SUPPORTED_MODES: string[] = ['api', 'server', 'normal'];
+const DEFAULT_CA_PORT: number = 9000;
 export default class FcLocalInvokeComponent {
   async report(componentName: string, command: string, accountID?: string, access?: string): Promise<void> {
     let uid: string = accountID;
@@ -93,6 +95,9 @@ export default class FcLocalInvokeComponent {
 
     const serviceConfig: ServiceConfig = properties?.service;
     const functionConfig: FunctionConfig = await updateCodeUriWithBuildPath(baseDir, properties?.function, serviceConfig.name);
+    if (functionConfig && (isCustomContainerRuntime(functionConfig?.runtime) || isCustomRuntime(functionConfig?.runtime))) {
+      functionConfig.caPort = functionConfig.caPort || DEFAULT_CA_PORT;
+    }
     const triggerConfigList: TriggerConfig[] = properties?.triggers;
     const customDomainConfigList: CustomDomainConfig[] = properties?.customDomains;
 
