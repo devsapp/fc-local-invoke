@@ -249,7 +249,8 @@ async function genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, d
 
   let debugOpts = {};
 
-  if (debugPort) {
+  // custom runtime dose not support debug
+  if (debugPort && !isCustomRuntime(runtime)) {
     debugOpts = generateDockerDebugOpts(runtime, debugPort, debugIde);
   }
 
@@ -257,6 +258,17 @@ async function genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, d
 
   supportCustomBootstrapFile(runtime, envs);
 
+  let ioOpts = {};
+  if (isCustomRuntime(runtime)) {
+    ioOpts = {
+      OpenStdin: true,
+      Tty: false,
+      StdinOnce: true,
+      AttachStdin: true,
+      AttachStdout: true,
+      AttachStderr: true
+    };
+  }
   const opts = nestedObjectAssign(
     {
       Env: resolveDockerEnv(envs),
@@ -267,7 +279,9 @@ async function genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, d
       Entrypoint: [resolveMockScript(runtime)]
     },
     hostOpts,
-    debugOpts);
+    debugOpts,
+    ioOpts);
+  
   const encryptedOpts: any = encryptDockerOpts(opts);
   logger.debug(`docker options: ${JSON.stringify(encryptedOpts, null, '  ')}`);
   return opts;
