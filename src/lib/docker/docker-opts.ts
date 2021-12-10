@@ -212,7 +212,7 @@ export function generateContainerName(serviceName: string, functionName: string,
 }
 
 export async function generateLocalStartOpts(runtime, name, mounts, cmd, envs, limitedHostConfig, { debugPort, dockerUser, debugIde = null, imageName, caPort = 9000 }) {
-  if (isCustomContainerRuntime(runtime)) {
+  if (isCustomContainerRuntime(runtime) || isCustomRuntime(runtime)) {
     return genCustomContainerLocalStartOpts(name, mounts, cmd, envs, limitedHostConfig,imageName, caPort);
   }
 
