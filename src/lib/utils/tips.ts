@@ -10,8 +10,8 @@ export function showTipsWithDomainIfNecessary(customDomainConfigList: CustomDoma
 
 function showLocalStartNextTips(customDomainConfigList: CustomDomainConfig[]) {
 
-  const startCommand = customDomainConfigList.map(cur => `s local start ${cur.domainName}`);
-  const debugCommand = customDomainConfigList.map(cur => `s local start -d 3000 ${cur.domainName}`);
+  const startCommand = customDomainConfigList.map(cur => `s local start --custom-domain ${cur.domainName}`);
+  const debugCommand = customDomainConfigList.map(cur => `s local start -d 3000 --custom-domain ${cur.domainName}`);
 
   const startTip = `${startCommand.join('\n* ')}`;
   const debugTip = `${debugCommand.join('\n* ')}`;

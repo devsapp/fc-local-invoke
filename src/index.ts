@@ -143,6 +143,7 @@ export default class FcLocalInvokeComponent {
     }
     const parsedArgs: {[key: string]: any} = core.commandParse(inputs, {
       boolean: ['debug', 'help'],
+      string: ['custom-domain'],
       alias: { help: 'h',
         config: 'c',
         'debug-port': 'd',
@@ -178,7 +179,8 @@ export default class FcLocalInvokeComponent {
     } = getDebugOptions(argsData);
     const userDefinedServerPort: number = (argsData && argsData['server-port']) ? _.toInteger(argsData['server-port']) : null;
 
-    const invokeName: string = nonOptionsArgs[0];
+    // s start --custom auto 兼容 s start auto
+    const invokeName: string = argsData?.['custom-domain'] || nonOptionsArgs[0];
     logger.debug(`invokeName: ${invokeName}`);
     // TODO: debug mode for dotnetcore
 
