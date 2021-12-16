@@ -495,7 +495,7 @@ export async function pullImageIfNeed(imageName: string, needResolveImageName = 
 
     await pullImage(imageName, needResolveImageName);
   } else {
-    logger.debug(`skip pulling image ${imageName}...`);
+    logger.debug(`Skip pulling image ${imageName}...`);
     logger.info(`Skip pulling image ${imageName}...`);
   }
 }
@@ -747,12 +747,12 @@ async function waitForExec(exec) {
 }
 
 // 处理容器的异常
-function _handlerContainerError(err) {
+function _handlerContainerError(err, caPort: string) {
   const message = err?.message || '';
   const DOCKER_CAPORT_ERROR_MESSAGE = 'port is already allocated';
 
   if(_.trim(message).lastIndexOf(DOCKER_CAPORT_ERROR_MESSAGE) > -1) {
-    return `HTTP Server Port Must be consistent with Custom Runtime Listening port(CAPort)。
+    return `HTTP Server Port Must be consistent with Custom Runtime Listening port(CAPort): ${caPort}。
       More details, please read document: https://help.aliyun.com/document_detail/209242.html
     `;
   } else {
@@ -771,7 +771,7 @@ export async function startContainer(opts: any, outputStream?: any, errorStream?
   try {
     await container.start({});
   } catch (err) {
-    throw new Error(_handlerContainerError(err));
+    throw new Error(_handlerContainerError(err, context.caPort));
   }
 
   const logs: any = outputStream || errorStream;

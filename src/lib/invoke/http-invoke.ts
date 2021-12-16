@@ -161,7 +161,8 @@ export default class HttpInvoke extends Invoke {
       });
     this.runner = await startContainer(opts, process.stdout, process.stderr, {
       serviceName: this.serviceName,
-      functionName: this.functionName
+      functionName: this.functionName,
+      caPort: this.functionConfig.caPort
     });
   }
 
