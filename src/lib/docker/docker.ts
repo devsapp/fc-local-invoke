@@ -752,8 +752,9 @@ function _handlerContainerError(err, caPort: string) {
   const DOCKER_CAPORT_ERROR_MESSAGE = 'port is already allocated';
 
   if(_.trim(message).lastIndexOf(DOCKER_CAPORT_ERROR_MESSAGE) > -1) {
-    return `HTTP Server Port Must be consistent with Custom Runtime Listening port(CAPort): ${caPort}。
-      More details, please read document: https://help.aliyun.com/document_detail/209242.html
+    return `
+    ERROR Message: HTTP Server Port Must be consistent with Custom Runtime Listening port(CAPort): ${caPort}。
+    Effective advice: More details, please read document: https://help.aliyun.com/document_detail/209242.html
     `;
   } else {
     return message;
