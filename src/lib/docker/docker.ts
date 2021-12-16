@@ -89,10 +89,8 @@ function waitingForContainerStopped(): any {
     try {
       await Promise.all(jobs);
       logger.info('All containers stopped');
-      // 修复 windows 环境下 Ctrl C 后容器退出，但是程序会 block 住的问题
-      if (process.platform === 'win32') {
-        process.exit(0);
-      }
+      // 修复Ctrl C 后容器退出，但是程序会 block 住的问题
+      process.exit(0);
     } catch (error) {
       logger.error(error);
       process.exit(-1); // eslint-disable-line
@@ -748,6 +746,20 @@ async function waitForExec(exec) {
   });
 }
 
+// 处理容器的异常
+function _handlerContainerError(err) {
+  const message = err?.message || '';
+  const DOCKER_CAPORT_ERROR_MESSAGE = 'port is already allocated';
+
+  if(_.trim(message).lastIndexOf(DOCKER_CAPORT_ERROR_MESSAGE) > -1) {
+    return `HTTP Server Port Must be consistent with Custom Runtime Listening port(CAPort)。
+      More details, please read document: https://help.aliyun.com/document_detail/209242.html
+    `;
+  } else {
+    return message;
+  }
+} 
+
 // outputStream, errorStream used for http invoke
 // because agent is started when container running and exec could not receive related logs
 export async function startContainer(opts: any, outputStream?: any, errorStream?: any, context?: any): Promise<any> {
@@ -759,7 +771,7 @@ export async function startContainer(opts: any, outputStream?: any, errorStream?
   try {
     await container.start({});
   } catch (err) {
-    logger.error(err);
+    throw new Error(_handlerContainerError(err));
   }
 
   const logs: any = outputStream || errorStream;
