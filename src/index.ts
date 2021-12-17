@@ -29,9 +29,10 @@ const app: any = express();
 const MIN_SERVER_PORT = 7000;
 const MAX_SERVER_PORT = 8000;
 
-const DEFAULT_SERVER_PORT: number = parseInt(_.toString(Math.random() * (MAX_SERVER_PORT - MIN_SERVER_PORT + 1) + MIN_SERVER_PORT), 10);
-const SUPPORTED_MODES: string[] = ['api', 'server', 'normal'];
 const DEFAULT_CA_PORT: number = 9000;
+let DEFAULT_SERVER_PORT: number = parseInt(_.toString(Math.random() * (MAX_SERVER_PORT - MIN_SERVER_PORT + 1) + MIN_SERVER_PORT), 10);
+const SUPPORTED_MODES: string[] = ['api', 'server', 'normal'];
+
 export default class FcLocalInvokeComponent {
   async report(componentName: string, command: string, accountID?: string, access?: string): Promise<void> {
     let uid: string = accountID;
@@ -97,6 +98,7 @@ export default class FcLocalInvokeComponent {
     const functionConfig: FunctionConfig = await updateCodeUriWithBuildPath(baseDir, properties?.function, serviceConfig.name);
     if (functionConfig && (isCustomContainerRuntime(functionConfig?.runtime) || isCustomRuntime(functionConfig?.runtime))) {
       functionConfig.caPort = functionConfig.caPort || DEFAULT_CA_PORT;
+      DEFAULT_SERVER_PORT = _.isUndefined(functionConfig.caPort) ? DEFAULT_SERVER_PORT: _.toNumber(functionConfig.caPort) + 1;
     }
     const triggerConfigList: TriggerConfig[] = properties?.triggers;
     const customDomainConfigList: CustomDomainConfig[] = properties?.customDomains;
