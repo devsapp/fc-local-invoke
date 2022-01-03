@@ -21,7 +21,7 @@ import {ICredentials} from "../../common/entity";
 import {isFalseValue} from "../utils/value";
 import {isIgnored, isIgnoredInCodeUri} from "../ignore";
 import * as fse from 'fs-extra';
-
+import * as fcCore from '@serverless-devs/fc-core';
 
 
 function isZipArchive(codeUri) {
@@ -128,25 +128,23 @@ export default class Invoke {
       allMount.push(this.debuggerMount);
     }
 
-    const isDockerToolBox = await docker.isDockerToolBoxAndEnsureDockerVersion();
+    const isDockerToolBox = await fcCore.isDockerToolBox();
 
     if (isDockerToolBox) {
       this.mounts = dockerOpts.transformMountsForToolbox(allMount);
     } else {
       this.mounts = allMount;
     }
-
     logger.debug(`docker mounts: ${JSON.stringify(this.mounts, null, 4)}`);
-
     this.containerName = docker.generateRamdomContainerName();
     const isCustomContainer = isCustomContainerRuntime(this.runtime);
     if (isCustomContainer) {
       this.imageName = this.functionConfig.customContainerConfig.image;
     } else {
-      this.imageName = await dockerOpts.resolveRuntimeToDockerImage(this.runtime);
+      this.imageName = await fcCore.resolveRuntimeToDockerImage(this.runtime);
     }
 
-    await docker.pullImageIfNeed(this.imageName, !isCustomContainer);
+    await docker.pullImageIfNeed(this.imageName);
 
     this.inited = true;
   }

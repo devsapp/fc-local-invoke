@@ -8,6 +8,9 @@
             "name": "Launch Program",
             "program": "${file}",
             "request": "launch",
+            "runtimeExecutable": "ts-node",
+            "runtimeArgs": ["dockerCommon.ts"],
+            "cwd": "${workspaceRoot}/test/fixture",
             "skipFiles": [
                 "<node_internals>/**"
             ],
@@ -17,10 +20,10 @@
             "name": "Debug Devs",
             "type": "node",
             "request": "launch",
-            "runtimeExecutable": "/usr/local/lib/node_modules/@serverless-devs/s/bin/s",
-            "runtimeArgs": ["start", "auto"],
+            "runtimeExecutable": "/Users/yk/.nvm/versions/node/v16.13.0/lib/node_modules/@serverless-devs/s/bin/s",
+            "runtimeArgs": ["start"],
             "console": "integratedTerminal",
-            "cwd": "${workspaceRoot}/example/start-express",
+            "cwd": "${workspaceRoot}/example/debug-for-python",
             "skipFiles": ["<node_internals>/**"]
         }
     ]

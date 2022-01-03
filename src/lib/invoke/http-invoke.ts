@@ -7,7 +7,7 @@ import watch from 'node-watch';
 import { ServiceConfig } from '../interface/fc-service';
 import { FunctionConfig } from '../interface/fc-function';
 import { TriggerConfig } from '../interface/fc-trigger';
-import * as core from '@serverless-devs/core';
+import * as fcCore from '@serverless-devs/fc-core';
 import * as streams from 'memory-streams';
 import * as rimraf from 'rimraf';
 import Invoke from './invoke';
@@ -133,8 +133,7 @@ export default class HttpInvoke extends Invoke {
 
     let limitedHostConfig;
     try {
-      const fcCommon = await core.loadComponent('devsapp/fc-common');
-      limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+      limitedHostConfig = await fcCore.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
       logger.debug(limitedHostConfig);
     } catch (err) {
       logger.debug(err);

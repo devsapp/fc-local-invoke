@@ -2,6 +2,7 @@ import logger from './common/logger';
 import { InputProps, ICredentials, IProperties } from './common/entity';
 import * as _ from 'lodash';
 import * as core from '@serverless-devs/core';
+import * as fcCore from '@serverless-devs/fc-core';
 import { ServiceConfig } from './lib/interface/fc-service';
 import { FunctionConfig } from './lib/interface/fc-function';
 import { TriggerConfig } from './lib/interface/fc-trigger';
@@ -155,22 +156,13 @@ export default class FcLocalInvokeComponent {
     const nonOptionsArgs = parsedArgs.data?._ || [];
 
     if (_.isEmpty(functionConfig)) {
-      logger.error('Please add function config in your s.yml/yaml and retry start.');
-      return {
-        status: 'failed',
-      };
+      throw new fcCore.CatchableError('Please add function config in your s.yml/yaml and retry start.');
     }
     if (_.isEmpty(triggerConfigList)) {
-      logger.error('Please local invoke http function with \'start\' method in fc-local-invoke component.');
-      return {
-        status: 'failed',
-      };
+      throw new fcCore.CatchableError('Please local invoke http function with \'start\' method in fc-local-invoke component.');
     }
     if (functionConfig?.codeUri && !await fs.pathExists(functionConfig?.codeUri)) {
-      logger.error(`Please make sure your codeUri: ${functionConfig.codeUri} exists and retry start.`);
-      return {
-        status: 'failed',
-      };
+      throw new fcCore.CatchableError(`Please make sure your codeUri: ${functionConfig.codeUri} exists and retry start.`);
     }
 
     const {
@@ -182,7 +174,7 @@ export default class FcLocalInvokeComponent {
     const userDefinedServerPort: number = (argsData && argsData['server-port']) ? _.toInteger(argsData['server-port']) : null;
 
     // s start --custom auto 兼容 s start auto
-    const invokeName: string = argsData?.['custom-domain'] || nonOptionsArgs[0];
+    const invokeName: string = argsData?.['custom-domain'] || nonOptionsArgs[0] || _.get(_.first(customDomainConfigList), 'domainName');
     logger.debug(`invokeName: ${invokeName}`);
     // TODO: debug mode for dotnetcore
 
@@ -193,7 +185,7 @@ export default class FcLocalInvokeComponent {
 
     const httpTrigger: TriggerConfig = findHttpTrigger(triggerConfigList);
     if (_.isEmpty(httpTrigger)) {
-      logger.error('Start method only for the function with the http trigger.');
+      throw new fcCore.CatchableError('Start method only for the function with the http trigger.');
       return;
     }
     const [domainName, routePath] = parseDomainRoutePath(invokeName);
@@ -254,19 +246,19 @@ export default class FcLocalInvokeComponent {
     const argsData: any = parsedArgs?.data || {};
 
     if (_.isEmpty(functionConfig)) {
-      logger.error('Please add function config in your s.yml/yaml and retry start.');
+      throw new fcCore.CatchableError('Please add function config in your s.yml/yaml and retry start.');
       return {
         status: 'failed',
       };
     }
     if (!_.isEmpty(triggerConfigList) && includeHttpTrigger(triggerConfigList)) {
-      logger.error('Please local invoke non-http function with \'invoke\' method in fc-local-invoke component.');
+      throw new fcCore.CatchableError('Please local invoke non-http function with \'invoke\' method in fc-local-invoke component.');
       return {
         status: 'failed',
       };
     }
     if (functionConfig?.codeUri && !await fs.pathExists(functionConfig?.codeUri)) {
-      logger.error(`Please make sure your codeUri: ${functionConfig.codeUri} exists and retry start.`);
+      throw new fcCore.CatchableError(`Please make sure your codeUri: ${functionConfig.codeUri} exists and retry start.`);
       return {
         status: 'failed',
       };

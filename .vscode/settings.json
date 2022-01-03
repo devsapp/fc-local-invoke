@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./example/debug-for-python/.s/build/artifacts/hello-world-service/http-trigger-py36/.s/python/lib/python3.6/site-packages"
+    ]
+}

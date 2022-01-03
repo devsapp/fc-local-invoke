@@ -1,6 +1,6 @@
 'use strict';
 import Invoke from './invoke';
-import * as core from '@serverless-devs/core';
+import * as fcCore from '@serverless-devs/fc-core';
 import docker = require('../docker/docker');
 import { ServiceConfig } from '../interface/fc-service';
 import { FunctionConfig } from '../interface/fc-function';
@@ -57,8 +57,7 @@ export default class LocalInvoke extends Invoke {
 
     let limitedHostConfig;
     try {
-      const fcCommon = await core.loadComponent('devsapp/fc-common');
-      limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+      limitedHostConfig = await fcCore.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
       logger.debug(limitedHostConfig);
     } catch (err) {
       logger.debug(err);
@@ -118,8 +117,7 @@ export default class LocalInvoke extends Invoke {
         } else {
           let limitedHostConfig;
           try {
-            const fcCommon = await core.loadComponent('devsapp/fc-common');
-            limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+            limitedHostConfig = await fcCore.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
             logger.debug(limitedHostConfig);
           } catch (err) {
             logger.debug(err);

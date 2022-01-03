@@ -3,7 +3,7 @@
 import Invoke from './invoke';
 import * as docker from '../docker/docker'
 import * as dockerOpts from '../docker/docker-opts';
-import * as core from '@serverless-devs/core';
+import * as fcCore from '@serverless-devs/fc-core';
 import { parseOutputStream, getFcReqHeaders, validateSignature, getHttpRawBody, generateInitRequestOpts, requestUntilServerUp, generateInvokeRequestOpts } from './http';
 import {isCustomContainerRuntime, isCustomRuntime} from '../common/model/runtime';
 
@@ -39,8 +39,7 @@ export default class ApiInvoke extends Invoke {
 
     let limitedHostConfig;
     try {
-      const fcCommon = await core.loadComponent('devsapp/fc-common');
-      limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+      limitedHostConfig = await fcCore.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
       logger.debug(limitedHostConfig);
     } catch (err) {
       logger.debug(err);

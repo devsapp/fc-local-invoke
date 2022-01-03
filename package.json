@@ -33,7 +33,8 @@
   },
   "dependencies": {
     "@alicloud/fc2": "^2.2.2",
-    "@serverless-devs/core": "^0.0.*",
+    "@serverless-devs/core": "latest",
+    "@serverless-devs/fc-core": "latest",
     "async-lock": "^1.3.0",
     "cheerio": "^1.0.0-rc.9",
     "detect-mocha": "^0.1.0",
