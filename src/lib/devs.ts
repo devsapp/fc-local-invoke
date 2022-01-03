@@ -5,7 +5,7 @@ import logger from '../common/logger';
 import { FunctionConfig } from './interface/fc-function';
 import _ from 'lodash';
 import { isCustomContainerRuntime } from './common/model/runtime';
-import StdoutFormatter from './component/stdout-formatter';
+import * as fcCore from '@serverless-devs/fc-core';
 
 export const DEFAULT_BUILD_ARTIFACTS_PATH_SUFFIX: string = path.join('.s', 'build', 'artifacts');
 export const DEFAULT_NAS_PATH_SUFFIX: string = path.join('.s', 'nas');
@@ -72,7 +72,7 @@ export async function updateCodeUriWithBuildPath(baseDir: string, functionConfig
   const resolvedFunctionConfig: FunctionConfig = _.cloneDeep(functionConfig);
   resolvedFunctionConfig.originalCodeUri = functionConfig.codeUri;
   resolvedFunctionConfig.codeUri = buildCodeUri;
-  logger.info(StdoutFormatter.stdoutFormatter.using('build codeUri', resolvedFunctionConfig.codeUri));
+  logger.info(fcCore.formatterOutput.using('build codeUri', resolvedFunctionConfig.codeUri));
   return resolvedFunctionConfig;
 }
 

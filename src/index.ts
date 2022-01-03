@@ -21,7 +21,6 @@ import { isFalseValue } from './lib/utils/value';
 import LocalInvoke from './lib/invoke/local-invoke';
 import { COMPONENT_HELP_INFO, START_HELP_INFO, INVOKE_HELP_INFO } from './lib/static';
 import * as fs from 'fs-extra';
-import StdoutFormatter from './lib/component/stdout-formatter';
 import express from 'express';
 import { isCustomContainerRuntime, isCustomRuntime } from './lib/common/model/runtime';
 
@@ -47,7 +46,7 @@ export default class FcLocalInvokeComponent {
         uid,
       });
     } catch (e) {
-      logger.warning(StdoutFormatter.stdoutFormatter.warn('component report', `component name: ${componentName}, method: ${command}`, e.message));
+      logger.warning(fcCore.formatterOutput.warn('component report', `component name: ${componentName}, method: ${command}`, e.message));
     }
   }
 
@@ -61,7 +60,6 @@ export default class FcLocalInvokeComponent {
   }
 
   async handlerInputs(inputs: InputProps): Promise<any> {
-    await StdoutFormatter.initStdout();
     const project = inputs?.project;
     const access: string = project?.access;
     const credentials: ICredentials = await core.getCredential(access);
