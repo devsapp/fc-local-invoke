@@ -2,12 +2,11 @@
 
 import logger from '../../common/logger';
 import * as _ from 'lodash';
+import * as core from '@serverless-devs/core';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as ip from 'ip';
-import * as tar from 'tar-fs';
 import Docker from 'dockerode';
-import { parseArgsStringToArgv } from 'string-argv';
 import * as draftlog from 'draftlog';
 import * as devnull from 'dev-null';
 import { NasConfig, ServiceConfig } from '../interface/fc-service';
@@ -17,7 +16,7 @@ import * as dockerOpts from './docker-opts';
 import { generatePwdFile } from '../utils/passwd';
 import { isCustomContainerRuntime } from '../common/model/runtime';
 import { getRootBaseDir } from '../devs';
-import { addEnv, addInstallTargetEnv, resolveLibPathsFromLdConf } from '../env';
+import { addEnv, resolveLibPathsFromLdConf } from '../env';
 import { findPathsOutofSharedPaths } from './docker-support';
 import { processorTransformFactory } from '../error-processor';
 import { ICredentials } from '../../common/entity';
@@ -31,6 +30,7 @@ const docker: any = new Docker();
 let containers: any = new Set();
 
 // exit container, when use ctrl + c
+waitingForContainerStopped();
 function waitingForContainerStopped(): any {
   // see https://stackoverflow.com/questions/10021373/what-is-the-windows-equivalent-of-process-onsigint-in-node-js
   // @ts-ignore
@@ -103,12 +103,7 @@ function waitingForContainerStopped(): any {
       process.stdin.setRawMode(isRaw);
     }
   };
-}
-
-const goThrough: any = waitingForContainerStopped();
-
-// todo: add options for pull latest image
-const skipPullImage: boolean = true;
+};
 
 export async function resolveNasConfigToMounts(baseDir: string, serviceName: string, nasConfig: NasConfig, nasBaseDir: string): Promise<any> {
   const nasMappings: any = await nas.convertNasConfigToNasMappings(nasBaseDir, nasConfig, serviceName);
@@ -187,41 +182,6 @@ function convertNasMappingsToMounts(baseDir: string, nasMappings: any): any {
   });
 }
 
-export function conventInstallTargetsToMounts(installTargets: any): any {
-
-  if (!installTargets) { return []; }
-
-  const mounts: Array<any> = [];
-
-  _.forEach(installTargets, (target) => {
-    const { hostPath, containerPath } = target;
-
-    if (!(fs.pathExistsSync(hostPath))) {
-      fs.ensureDirSync(hostPath);
-    }
-
-    mounts.push({
-      Type: 'bind',
-      Source: hostPath,
-      Target: containerPath,
-      ReadOnly: false
-    });
-  });
-
-  return mounts;
-}
-
-export async function imageExist(imageName: string): Promise<boolean> {
-
-  const images: Array<any> = await docker.listImages({
-    filters: {
-      reference: [imageName]
-    }
-  });
-
-  return images.length > 0;
-}
-
 export async function listContainers(options: any): Promise<any> {
   return await docker.listContainers(options);
 }
@@ -293,133 +253,6 @@ export function generateDockerCmd(runtime: string, isLocalStartInit: boolean, fu
   return genDockerCmdOfNonCustomContainer(functionConfig, httpMode, invokeInitializer, event);
 }
 
-
-function followProgress(stream: any, onFinished: any): void {
-
-  const barLines: any = {};
-
-  const onProgress: Function = (event) => {
-    let status: any = event.status;
-
-    if (event.progress) {
-      status = `${event.status} ${event.progress}`;
-    }
-
-    if (event.id) {
-      const id: number = event.id;
-
-      if (!barLines[id]) {
-        barLines[id] = console.draft();
-      }
-      barLines[id](id + ': ' + status);
-    } else {
-      if (_.has(event, 'aux.ID')) {
-        event.stream = event.aux.ID + '\n';
-      }
-      // If there is no id, the line should be wrapped manually.
-      const out: any = event.status ? event.status + '\n' : event.stream;
-      process.stdout.write(out);
-    }
-  };
-
-  docker.modem.followProgress(stream, onFinished, onProgress);
-}
-
-export async function pullImage(imageName: string, needResolveImageName?: boolean): Promise<any> {
-
-  const resolveImageName: string = needResolveImageName ? await dockerOpts.resolveImageNameForPull(imageName) : imageName;
-
-  // copied from lib/edge/container.js
-  // const startTime: any = new Date();
-
-  const stream: any = await docker.pull(resolveImageName);
-
-  // const visitor: any = await getVisitor();
-
-  // visitor.event({
-  //   ec: 'image',
-  //   ea: 'pull',
-  //   el: 'start'
-  // }).send();
-
-  // const registry: any = await dockerOpts.resolveDockerRegistry();
-
-  return await new Promise((resolve, reject) => {
-
-    logger.info(`Pulling image ${resolveImageName}, you can also use ` + `'docker pull ${resolveImageName}'` + ' to pull image by yourself.');
-
-    const onFinished = async (err) => {
-      if (err) {
-        reject(err);
-      }
-      containers.delete(stream);
-      // const endTime: any = new Date();
-      // const pullDuration: number = parseInt(String( (endTime - startTime) / 1000));
-      // if (err) {
-      //   visitor.event({
-      //     ec: 'image',
-      //     ea: 'pull',
-      //     el: 'error'
-      //   }).send();
-
-      //   visitor.event({
-      //     ec: 'image',
-      //     ea: `pull from ${registry}`,
-      //     el: 'error'
-      //   }).send();
-
-      //   visitor.event({
-      //     ec: `image pull from ${registry}`,
-      //     ea: `used ${pullDuration}`,
-      //     el: 'error'
-      //   }).send();
-      //   reject(err);
-      //   return;
-      // }
-
-      // visitor.event({
-      //   ec: 'image',
-      //   ea: `pull from ${registry}`,
-      //   el: 'success'
-      // }).send();
-
-      // visitor.event({
-      //   ec: 'image',
-      //   ea: 'pull',
-      //   el: 'success'
-      // }).send();
-
-      // visitor.event({
-      //   ec: `image pull from ${registry}`,
-      //   ea: `used ${pullDuration}`,
-      //   el: 'success'
-      // }).send();
-
-      for (const r of dockerOpts.DOCKER_REGISTRIES) {
-        if (resolveImageName.indexOf(r) === 0) {
-          const image: any = await docker.getImage(resolveImageName);
-
-          const newImageName: string = resolveImageName.slice(r.length + 1);
-          const repoTag: string[] = newImageName.split(':');
-
-          // rename
-          await image.tag({
-            name: resolveImageName,
-            repo: _.first(repoTag),
-            tag: _.last(repoTag)
-          });
-          break;
-        }
-      }
-      resolve(resolveImageName);
-    };
-
-    containers.add(stream);
-    // pull image progress
-    followProgress(stream, onFinished);
-  });
-}
-
 export function generateFunctionEnvs(functionConfig: FunctionConfig): any {
   const environmentVariables = functionConfig.environmentVariables;
 
@@ -485,19 +318,6 @@ export async function generateDockerEnvs(creds: ICredentials, region: string, ba
     return envs;
   }
   return addEnv(envs, nasConfig);
-}
-
-
-export async function pullImageIfNeed(imageName: string, needResolveImageName = true): Promise<void> {
-  const exist: boolean = await imageExist(imageName);
-
-  if (!exist || !skipPullImage) {
-
-    await pullImage(imageName, needResolveImageName);
-  } else {
-    logger.debug(`Skip pulling image ${imageName}...`);
-    logger.info(`Skip pulling image ${imageName}...`);
-  }
 }
 
 export async function showDebugIdeTipsForVscode(serviceName: string, functionName: string, runtime: string, codeSource: string, debugPort?: number): Promise<void> {
@@ -571,16 +391,8 @@ function writeEventToStreamAndClose(stream, event) {
 }
 
 export async function isDockerToolBoxAndEnsureDockerVersion(): Promise<boolean> {
-
-  const dockerInfo: any = await docker.info();
-
-  await detectDockerVersion(dockerInfo.ServerVersion || '');
-
-  const obj = (dockerInfo.Labels || []).map(e => _.split(e, '=', 2))
-    .filter(e => e.length === 2)
-    .reduce((acc, cur) => (acc[cur[0]] = cur[1], acc), {});
-
-  return process.platform === 'win32' && obj.provider === 'virtualbox';
+  const fcCore = await core.loadComponent('devsapp/fc-core')
+  return await fcCore.isDockerToolBox();
 }
 
 export async function runContainer(opts, outputStream, errorStream, context?: any) {
@@ -853,263 +665,4 @@ export async function startContainer(opts: any, outputStream?: any, errorStream?
       return await waitForExec(exec);
     }
   };
-}
-
-export async function startInstallationContainer({ runtime, imageName, codeUri, targets, context }): Promise<any> {
-  logger.debug(`runtime: ${runtime}`);
-  logger.debug(`codeUri: ${codeUri}`);
-
-  if (await isDockerToolBoxAndEnsureDockerVersion()) {
-    throw new Error(`\nWe detected that you are using docker toolbox. For a better experience, please upgrade 'docker for windows'.\nYou can refer to Chinese doc https://github.com/alibaba/funcraft/blob/master/docs/usage/installation-zh.md#windows-%E5%AE%89%E8%A3%85-docker or English doc https://github.com/alibaba/funcraft/blob/master/docs/usage/installation.md.`);
-  }
-
-  if (!imageName) {
-    imageName = await dockerOpts.resolveRuntimeToDockerImage(runtime, true);
-    if (!imageName) {
-      throw new Error(`invalid runtime name ${runtime}`);
-    }
-  }
-
-  const codeMount = await resolveCodeUriToMount(codeUri, false);
-
-  const installMounts = conventInstallTargetsToMounts(targets);
-  const passwdMount = await resolvePasswdMount();
-  const mounts = _.compact([codeMount, ...installMounts, passwdMount]);
-
-  await pullImageIfNeed(imageName);
-
-  const envs = addInstallTargetEnv({}, targets);
-  const opts = dockerOpts.generateInstallOpts(imageName, mounts, envs);
-
-  return await startContainer(opts);
-}
-
-function displaySboxTips(runtime) {
-  logger.log(`\nWelcom to fc sbox environment.\n`, 'yellow');
-  logger.log(`You can install system dependencies like this:`, 'yellow');
-  logger.log(`fun-install apt-get install libxss1\n`, 'yellow');
-
-  switch (runtime) {
-  case 'nodejs6':
-  case 'nodejs8':
-  case 'nodejs10':
-  case 'nodejs12':
-    logger.log(`You can install node modules like this:`, 'yellow');
-    logger.log(`fun-install npm install puppeteer\n`, 'yellow');
-    break;
-  case 'python2.7':
-  case 'python3':
-    logger.log(`You can install pip dependencies like this:`, 'yellow');
-    logger.log(`fun-install pip install flask`, 'yellow');
-    break;
-  default:
-    break;
-  }
-  logger.info('Type \'fun-install --help\' for more help\n');
-}
-
-export async function startSboxContainer({
-  runtime, imageName,
-  mounts, cmd, envs,
-  isTty, isInteractive
-}): Promise<void> {
-  logger.debug(`runtime: ${runtime}`);
-  logger.debug(`mounts: ${mounts}`);
-  logger.debug(`isTty: ${isTty}`);
-  logger.debug(`isInteractive: ${isInteractive}`);
-
-  if (!imageName) {
-    imageName = await dockerOpts.resolveRuntimeToDockerImage(runtime, true);
-    if (!imageName) {
-      throw new Error(`invalid runtime name ${runtime}`);
-    }
-  }
-
-  logger.debug(`cmd: ${parseArgsStringToArgv(cmd || '')}`);
-
-  const container = await createContainer(dockerOpts.generateSboxOpts({
-    imageName,
-    hostname: `fc-${runtime}`,
-    mounts,
-    envs,
-    cmd: parseArgsStringToArgv(cmd || ''),
-    isTty,
-    isInteractive
-  }));
-
-  containers.add(container.id);
-
-  await container.start();
-
-  const stream = await container.attach({
-    logs: true,
-    stream: true,
-    stdin: isInteractive,
-    stdout: true,
-    stderr: true
-  });
-
-  // show outputs
-  let logStream;
-  if (isTty) {
-    stream.pipe(process.stdout);
-  } else {
-    if (isInteractive || process.platform === 'win32') {
-      // 这种情况很诡异，收不到 stream 的 stdout，使用 log 绕过去。
-      logStream = await container.logs({
-        stdout: true,
-        stderr: true,
-        follow: true
-      });
-      container.modem.demuxStream(logStream, process.stdout, process.stderr);
-    } else {
-      container.modem.demuxStream(stream, process.stdout, process.stderr);
-    }
-
-  }
-
-  if (isInteractive) {
-    displaySboxTips(runtime);
-
-    // Connect stdin
-    process.stdin.pipe(stream);
-
-    let previousKey;
-    const CTRL_P = '\u0010', CTRL_Q = '\u0011';
-
-    process.stdin.on('data', (key) => {
-      // Detects it is detaching a running container
-      const keyStr = key.toString('ascii');
-      if (previousKey === CTRL_P && keyStr === CTRL_Q) {
-        container.stop(() => { });
-      }
-      previousKey = keyStr;
-    });
-
-  }
-
-  let resize;
-  // @ts-ignore
-  const isRaw = process.isRaw;
-  if (isTty) {
-    // fix not exit process in windows
-    goThrough();
-
-    process.stdin.setRawMode(true);
-
-    resize = async () => {
-      const dimensions = {
-        h: process.stdout.rows,
-        w: process.stdout.columns
-      };
-
-      if (dimensions.h !== 0 && dimensions.w !== 0) {
-        await container.resize(dimensions);
-      }
-    };
-
-    await resize();
-    process.stdout.on('resize', resize);
-
-    // 在不加任何 cmd 的情况下 shell prompt 需要输出一些字符才会显示，
-    // 这里输入一个空格+退格，绕过这个怪异的问题。
-    stream.write(' \b');
-  }
-
-  await container.wait();
-
-  // cleanup
-  if (isTty) {
-    process.stdout.removeListener('resize', resize);
-    process.stdin.setRawMode(isRaw);
-  }
-
-  if (isInteractive) {
-    process.stdin.removeAllListeners();
-    process.stdin.unpipe(stream);
-
-    /**
-     *  https://stackoverflow.com/questions/31716784/nodejs-process-never-ends-when-piping-the-stdin-to-a-child-process?rq=1
-     *  https://github.com/nodejs/node/issues/2276
-     * */
-    process.stdin.destroy();
-  }
-
-  if (logStream) {
-    logStream.removeAllListeners();
-  }
-
-  stream.unpipe(process.stdout);
-
-  // fix not exit process in windows
-  // stream is hackji socks,so need to close
-  stream.destroy();
-
-  containers.delete(container.id);
-
-  if (!isTty) {
-    goThrough();
-  }
-}
-
-async function zipTo(archive: any, to: string): Promise<void> {
-
-  await fs.ensureDir(to);
-
-  await new Promise((resolve, reject) => {
-    archive.pipe(tar.extract(to)).on('error', reject).on('finish', resolve);
-  });
-}
-
-export async function copyFromImage(imageName: string, from: string, to: string): Promise<void> {
-  const container = await docker.createContainer({
-    Image: imageName
-  });
-
-  const archive = await container.getArchive({
-    path: from
-  });
-
-  await zipTo(archive, to);
-
-  await container.remove();
-}
-
-export function buildImage(dockerBuildDir: string, dockerfilePath: string, imageTag: string): Promise<any> {
-
-  return new Promise((resolve, reject) => {
-    var tarStream = tar.pack(dockerBuildDir);
-
-    docker.buildImage(tarStream, {
-      dockerfile: path.relative(dockerBuildDir, dockerfilePath),
-      t: imageTag
-    }, (error, stream) => {
-      containers.add(stream);
-
-      if (error) {
-        reject(error);
-        return;
-      }
-      stream.on('error', (e) => {
-        containers.delete(stream);
-        reject(e);
-        return;
-      });
-      stream.on('end', function () {
-        containers.delete(stream);
-        resolve(imageTag);
-        return;
-      });
-
-      followProgress(stream, (err, res) => err ? reject(err) : resolve(res));
-    });
-  });
-}
-
-export async function detectDockerVersion(serverVersion: string): Promise<void> {
-  let cur = serverVersion.split('.');
-  // 1.13.1
-  if (Number.parseInt(cur[0]) === 1 && Number.parseInt(cur[1]) <= 13) {
-    throw new Error(`\nWe detected that your docker version is ${serverVersion}, for a better experience, please upgrade the docker version.`);
-  }
 }

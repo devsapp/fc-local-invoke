@@ -48,40 +48,6 @@ const funPaths: string[] = [
   '/node_modules/.bin'
 ];
 
-// This method is only used for fun install target attribue.
-//
-// In order to be able to use the dependencies installed in the previous step,
-// such as the model serving example, fun need to configure the corresponding environment variables
-// so that the install process can go through.
-//
-// However, if the target specifies a directory other than nas, code,
-// it will not be successful by deploy, so this is an implicit rule.
-//
-// For fun-install, don't need to care about this rule because it has Context information for nas.
-// Fun will set all environment variables before fun-install is executed.
-export function addInstallTargetEnv(envVars, targets) {
-  const envs = Object.assign({}, envVars);
-
-  if (!targets) { return envs; }
-
-  _.forEach(targets, (target) => {
-
-    const { containerPath } = target;
-
-    const prefix = containerPath;
-
-    const targetPathonPath = pythonPaths.map(p => `${prefix}${p}`).join(':');
-
-    if (envs['PYTHONPATH']) {
-      envs['PYTHONPATH'] = `${envs['PYTHONPATH']}:${targetPathonPath}`;
-    } else {
-      envs['PYTHONPATH'] = targetPathonPath;
-    }
-  });
-
-  return envs;
-}
-
 export async function resolveLibPathsFromLdConf(baseDir: string, codeUri: string): Promise<any> {
   const envs = {};
   if (!codeUri) { return envs; }

@@ -31,7 +31,8 @@ export function getUserIdAndGroupId(nasConfig: NasConfig | string) {
 export function findHttpTrigger(triggerConfigList: TriggerConfig[]): TriggerConfig {
   for (const triggerConfig of triggerConfigList) {
     if (triggerConfig.type === 'http') {
-      logger.info(StdoutFormatter.stdoutFormatter.using('trigger for start', yaml.dump(triggerConfig)));
+      logger.info(StdoutFormatter.stdoutFormatter.using('trigger for start', ''));
+      logger.log(yaml.dump(triggerConfig));
       return triggerConfig;
     }
   }

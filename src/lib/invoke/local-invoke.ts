@@ -57,8 +57,7 @@ export default class LocalInvoke extends Invoke {
 
     let limitedHostConfig;
     try {
-      const fcCommon = await core.loadComponent('devsapp/fc-common');
-      limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+      limitedHostConfig = await this.fcCore.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
       logger.debug(limitedHostConfig);
     } catch (err) {
       logger.debug(err);

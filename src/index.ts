@@ -287,7 +287,8 @@ export default class FcLocalInvokeComponent {
     const { mode } = argsData;
 
     if (mode && !SUPPORTED_MODES.includes(mode)) {
-      throw new Error(`Unsupported mode: ${mode}`);
+      const fcCore = await core.loadComponent('devsapp/fc-core');
+      throw new fcCore.CatchableError(`Unsupported mode: ${mode}`);
     }
 
     await ensureFilesModified(devsPath);
