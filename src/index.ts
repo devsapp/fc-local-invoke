@@ -1,6 +1,7 @@
 import logger from './common/logger';
 import { InputProps, ICredentials, IProperties } from './common/entity';
 import * as _ from 'lodash';
+import Docker from 'dockerode';
 import * as core from '@serverless-devs/core';
 import { ServiceConfig } from './lib/interface/fc-service';
 import { FunctionConfig } from './lib/interface/fc-function';
@@ -103,6 +104,8 @@ export default class FcLocalInvokeComponent {
     const triggerConfigList: TriggerConfig[] = properties?.triggers;
     const customDomainConfigList: CustomDomainConfig[] = properties?.customDomains;
 
+    const fcCore = await core.loadComponent('devsapp/fc-core');
+    await fcCore.preExecute(new Docker(), argsData['clean-useless-image']);
 
     return {
       serviceConfig,
