@@ -1,4 +1,5 @@
 import * as path from 'path';
+import * as core from '@serverless-devs/core';
 import { detectTmpDir } from '../devs';
 import * as fs from 'fs-extra';
 
@@ -11,7 +12,8 @@ export async function ensureTmpDir(tmpDir: string, devsPath: string, serviceName
     const stats = await fs.lstat(absTmpDir);
 
     if (stats.isFile()) {
-      throw new Error(`'${absTmpDir}' should be a directory.`);
+      const fcCore = await core.loadComponent('devsapp/fc-core');
+      throw new fcCore.CatchableError(`'${absTmpDir}' should be a directory.`);
     }
   } else {
     await fs.ensureDir(absTmpDir, {
@@ -20,8 +22,4 @@ export async function ensureTmpDir(tmpDir: string, devsPath: string, serviceName
   }
 
   return absTmpDir;
-}
-
-export function isNccPath(targetPath: string): boolean {
-  return path.basename(targetPath) === 'dist';
 }

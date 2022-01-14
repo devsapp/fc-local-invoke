@@ -1,5 +1,7 @@
 'use strict';
 
+import * as core from '@serverless-devs/core';
+import Docker from 'dockerode';
 import { ServiceConfig, NasConfig } from '../interface/fc-service';
 import { FunctionConfig } from '../interface/fc-function';
 import { TriggerConfig } from '../interface/fc-trigger';
@@ -72,6 +74,7 @@ export default class Invoke {
   protected mounts?: any;
   protected nasMappingsMount? : any;
   protected creds: ICredentials;
+  protected fcCore: any;
 
   constructor(creds, region: string, baseDir: string, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, triggerConfig?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string) {
     this.creds = creds;
@@ -106,6 +109,7 @@ export default class Invoke {
   }
 
   async init() {
+    this.fcCore = await core.loadComponent('devsapp/fc-core');
     this.nasConfig = this.serviceConfig?.nasConfig;
     this.dockerUser = await dockerOpts.resolveDockerUser({ nasConfig: this.nasConfig });
     this.nasMounts = await docker.resolveNasConfigToMounts(this.baseDir, this.serviceName, this.nasConfig, this.nasBaseDir || path.join(this.baseDir, DEFAULT_NAS_PATH_SUFFIX));
@@ -145,9 +149,7 @@ export default class Invoke {
     } else {
       this.imageName = await dockerOpts.resolveRuntimeToDockerImage(this.runtime);
     }
-
-    await docker.pullImageIfNeed(this.imageName, !isCustomContainer);
-
+    await this.fcCore.pullImageIfNeed(new Docker(), this.imageName);
     this.inited = true;
   }
 

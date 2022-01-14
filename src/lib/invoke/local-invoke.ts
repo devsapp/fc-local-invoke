@@ -57,8 +57,7 @@ export default class LocalInvoke extends Invoke {
 
     let limitedHostConfig;
     try {
-      const fcCommon = await core.loadComponent('devsapp/fc-common');
-      limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+      limitedHostConfig = await this.fcCore.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
       logger.debug(limitedHostConfig);
     } catch (err) {
       logger.debug(err);
@@ -158,12 +157,14 @@ export default class LocalInvoke extends Invoke {
     }
     if (isCustomContainerRuntime(this.runtime) || isCustomRuntime(this.runtime)) {
       let container;
+      let stream;
       if (!containerUp) {
         const containerRunner = await docker.runContainer(this.opts, outputStream, errorStream, {
           serviceName: this.serviceName,
           functionName: this.functionName,
         });
         container = containerRunner.container;
+        stream = containerRunner.stream;
       }
       // send request
       const fcReqHeaders = getFcReqHeaders({}, uuidv4(), this.envs);
@@ -184,6 +185,7 @@ export default class LocalInvoke extends Invoke {
       // exit container
       if (!containerUp) {
         await docker.exitContainer(container);
+        stream?.end();
       }
     } else {
       await docker.run(this.opts, event, outputStream, errorStream, {

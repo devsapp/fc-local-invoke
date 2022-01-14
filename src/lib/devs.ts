@@ -58,38 +58,18 @@ export async function updateCodeUriWithBuildPath(baseDir: string, functionConfig
   const functionName = functionConfig.name;
   const buildCodeUri = path.join(buildBasePath, serviceName, functionName);
 
-  await checkBuildAvailable(baseDir, serviceName, functionName);
-  if (isInterpretedLanguage(functionConfig.runtime)) {
-    const fcBuildLink = await core.loadComponent('devsapp/fc-build-link');
-    await fcBuildLink.linkWithProps({
-      serviceName,
-      functionName,
-      configDirPath: baseDir,
-      codeUri: functionConfig.codeUri,
-    });
-  }
+  const fcCore = await core.loadComponent('devsapp/fc-core');
+  await fcCore.buildLink({
+    serviceName,
+    functionName,
+    runtime: functionConfig.runtime,
+    configDirPath: baseDir,
+    codeUri: functionConfig.codeUri,
+  });
 
   const resolvedFunctionConfig: FunctionConfig = _.cloneDeep(functionConfig);
   resolvedFunctionConfig.originalCodeUri = functionConfig.codeUri;
   resolvedFunctionConfig.codeUri = buildCodeUri;
   logger.info(StdoutFormatter.stdoutFormatter.using('build codeUri', resolvedFunctionConfig.codeUri));
   return resolvedFunctionConfig;
-}
-
-/**
- * 检测 build 是否可用
- * @param serviceName 服务名称
- * @param functionName 函数名称
- */
- export async function checkBuildAvailable(baseDir, serviceName: string, functionName: string) {
-  const statusId = `${serviceName}-${functionName}-build`;
-  const statusPath = path.join(baseDir, '.s', 'fc-build');
-  const { status } = await core.getState(statusId, statusPath) || {};
-  if (status === 'unavailable') {
-    throw new Error(`${serviceName}/${functionName} build status is unavailable.Please re-execute 's build'`);
-  }
-}
-
-export function isInterpretedLanguage(runtime: string) {
-  return runtime.startsWith('node') || runtime.startsWith('python') || runtime.startsWith('php');
 }
