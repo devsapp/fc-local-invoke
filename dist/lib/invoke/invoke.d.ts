@@ -34,6 +34,7 @@ export default class Invoke {
     protected mounts?: any;
     protected nasMappingsMount?: any;
     protected creds: ICredentials;
+    protected fcCore: any;
     constructor(creds: any, region: string, baseDir: string, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, triggerConfig?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string);
     invoke(req: any, res: any): Promise<void>;
     init(): Promise<void>;
