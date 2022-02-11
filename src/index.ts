@@ -47,7 +47,7 @@ export default class FcLocalInvokeComponent {
         uid,
       });
     } catch (e) {
-      logger.warning(StdoutFormatter.stdoutFormatter.warn('component report', `component name: ${componentName}, method: ${command}`, e.message));
+      logger.warn(StdoutFormatter.stdoutFormatter.warn('component report', `component name: ${componentName}, method: ${command}`, e.message));
     }
   }
 
@@ -106,6 +106,17 @@ export default class FcLocalInvokeComponent {
 
     const fcCore = await core.loadComponent('devsapp/fc-core');
     await fcCore.preExecute(new Docker(), argsData['clean-useless-image']);
+
+    if (isCustomRuntime(functionConfig?.runtime)) {
+      const bootstrapFile = path.join(functionConfig?.codeUri || '', 'bootstrap');
+      try {
+        const { getFileEndOfLineSequence } = await core.loadComponent('devsapp/fc-core');
+        const fileEndOfLineSequence = await getFileEndOfLineSequence(bootstrapFile);
+        if (typeof fileEndOfLineSequence === 'string' && fileEndOfLineSequence !== 'LF') {
+          logger.warn(`The bootstrap line ending sequence was detected as ${fileEndOfLineSequence}, possibly affecting the function call. The supported format is LF.`);
+        }
+      } catch (_ex) { /* 不阻塞主程序运行 */ }
+    }
 
     return {
       serviceConfig,
