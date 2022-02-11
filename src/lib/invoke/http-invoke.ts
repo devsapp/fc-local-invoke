@@ -133,8 +133,8 @@ export default class HttpInvoke extends Invoke {
 
     let limitedHostConfig;
     try {
-      const fcCommon = await core.loadComponent('devsapp/fc-common');
-      limitedHostConfig = await fcCommon.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
+      const fcCore = await core.loadComponent('devsapp/fc-core');
+      limitedHostConfig = await fcCore.genContainerResourcesLimitConfig(this.functionConfig.memorySize);
       logger.debug(limitedHostConfig);
     } catch (err) {
       logger.debug(err);
