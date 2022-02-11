@@ -187,7 +187,7 @@ export default class Invoke {
     }
     const ignoreFileInBaseDir: string = path.join(this.baseDir, '.fcignore');
     if (fse.pathExistsSync(ignoreFileInBaseDir) && fse.lstatSync(ignoreFileInBaseDir).isFile()) {
-      logger.warning('.fcignore file will be placed under codeUri only in the future. Please update it with the relative path and then move it to the codeUri as soon as possible.');
+      logger.warn('.fcignore file will be placed under codeUri only in the future. Please update it with the relative path and then move it to the codeUri as soon as possible.');
     }
     return await isIgnored(this.baseDir, this.runtime, path.resolve(this.baseDir, this.functionConfig?.codeUri), path.resolve(this.baseDir, this.functionConfig?.originalCodeUri || this.functionConfig?.codeUri));
   }

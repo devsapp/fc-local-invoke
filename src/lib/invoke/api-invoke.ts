@@ -44,7 +44,7 @@ export default class ApiInvoke extends Invoke {
       logger.debug(limitedHostConfig);
     } catch (err) {
       logger.debug(err);
-      logger.warning("Try to generate the container's resource limit configuration but failed. The default configuration of docker will be used.");
+      logger.warn("Try to generate the container's resource limit configuration but failed. The default configuration of docker will be used.");
       limitedHostConfig = {
         CpuPeriod: null,
         CpuQuota: null,
@@ -124,7 +124,7 @@ export default class ApiInvoke extends Invoke {
     const errorResponse = errorStream.toString();
     // 当容器的输出为空异常时
     if (outputStream.toString() === '') {
-      logger.warning('Warning: outputStream of CA container is empty');
+      logger.warn('Warning: outputStream of CA container is empty');
     }
 
     let { statusCode, body, requestId, billedTime, memoryUsage } = parseOutputStream(outputStream);

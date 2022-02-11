@@ -336,7 +336,7 @@ export async function writeDebugIdeConfigForVscode(baseDir: string, serviceName:
   try {
     await fs.ensureDir(path.dirname(configJsonFilePath));
   } catch (e) {
-    logger.warning(`Ensure directory: ${configJsonFolder} failed.`);
+    logger.warn(`Ensure directory: ${configJsonFolder} failed.`);
     await showDebugIdeTipsForVscode(serviceName, functionName, runtime, codeSource, debugPort);
     logger.debug(`Ensure directory: ${configJsonFolder} failed, error: ${e}`);
     return;
@@ -346,14 +346,14 @@ export async function writeDebugIdeConfigForVscode(baseDir: string, serviceName:
     // 文件已存在则对比文件内容与待写入内容，若不一致提示用户需要手动写入 launch.json
     const configInJsonFile = JSON.parse(await fs.readFile(configJsonFilePath, {encoding: 'utf8'}));
     if (_.isEqual(configInJsonFile, vscodeDebugConfig)) { return; }
-    logger.warning(`File: ${configJsonFilePath} already exists, please overwrite it with the following config.`);
+    logger.warn(`File: ${configJsonFilePath} already exists, please overwrite it with the following config.`);
     await showDebugIdeTipsForVscode(serviceName, functionName, runtime, codeSource, debugPort);
     return;
   }
   try {
     await fs.writeFile(configJsonFilePath, JSON.stringify(vscodeDebugConfig, null, '  '), {encoding: 'utf8', flag: 'w'});
   } catch (e) {
-    logger.warning(`Write ${configJsonFilePath} failed.`);
+    logger.warn(`Write ${configJsonFilePath} failed.`);
     await showDebugIdeTipsForVscode(serviceName, functionName, runtime, codeSource, debugPort);
     logger.debug(`Write ${configJsonFilePath} failed, error: ${e}`);
   }
