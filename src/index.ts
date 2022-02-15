@@ -202,6 +202,7 @@ export default class FcLocalInvokeComponent {
 
     const serviceName: string = serviceConfig.name;
     const functionName: string = functionConfig.name;
+    const httpTriggerPath: string = `http://localhost/2016-08-15/proxy/${serviceName}/${functionName}`;
 
     await ensureFilesModified(devsPath);
 
@@ -210,7 +211,7 @@ export default class FcLocalInvokeComponent {
       logger.error('Start method only for the function with the http trigger.');
       return;
     }
-    const [domainName, routePath] = parseDomainRoutePath(invokeName);
+    const [domainName, routePath] = await parseDomainRoutePath(invokeName, customDomainConfigList, httpTriggerPath);
 
     const routePaths: string[] = getRoutePathsByDomainPath(customDomainConfigList, domainName, routePath);
     if (!_.isEmpty(routePaths)) {

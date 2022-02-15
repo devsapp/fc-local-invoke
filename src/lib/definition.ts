@@ -1,9 +1,10 @@
+import { inquirer } from '@serverless-devs/core';
+import yaml from 'js-yaml';
 import { NasConfig } from './interface/fc-service';
 import { TriggerConfig } from './interface/fc-trigger';
 import { CustomDomainConfig, RouteConfig } from './interface/fc-custom-domain';
 import * as _ from 'lodash';
 import logger from '../common/logger';
-import yaml from 'js-yaml';
 import StdoutFormatter from './component/stdout-formatter';
 
 export function isNasAutoConfig(nasConfig: NasConfig | string): boolean {
@@ -40,11 +41,36 @@ export function findHttpTrigger(triggerConfigList: TriggerConfig[]): TriggerConf
   return null;
 }
 
-export function parseDomainRoutePath(domainRoutePath: string): any {
+export async function parseDomainRoutePath(domainRoutePath: string, customDomainConfigList: CustomDomainConfig[], httpTriggerPath: string) {
   let domainName = null;
   let routePath = null;
 
-  if (!domainRoutePath) { return []; }
+  // 由于默认是 customDomain，所以预留系统字段模拟fc系统路径
+  if (domainRoutePath === 'system') {
+    return [null, null];
+  }
+  if (!domainRoutePath) {
+    if (_.isEmpty(customDomainConfigList)) {
+      return [null, null];
+    }
+    if (customDomainConfigList.length === 1) {
+      domainName = customDomainConfigList[0].domainName;
+    } else {
+      const domainNames = customDomainConfigList.map(({ domainName }): string => domainName);
+      const systemKey = `system [${httpTriggerPath}]`;
+      domainNames.unshift(systemKey);
+      domainName = (await inquirer.prompt({
+        type: 'list',
+        name: 'domainName',
+        message: 'Please select a domain name(system is the system path of FC): ',
+        choices: domainNames,
+      })).domainName;
+      if (domainName === systemKey) {
+        return [null, null];
+      }
+    }
+    return [domainName, null];
+  }
 
   const index = domainRoutePath.indexOf('/');
   if (index < 0) {
