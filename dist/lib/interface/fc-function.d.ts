@@ -3,6 +3,7 @@ export interface FunctionConfig {
     description?: string;
     caPort?: number;
     customContainerConfig?: CustomContainerConfig;
+    customRuntimeConfig?: CustomRuntimeConfig;
     handler: string;
     memorySize?: number;
     runtime: string;
@@ -16,6 +17,10 @@ export interface FunctionConfig {
     instanceType?: string;
     codeUri?: string;
     originalCodeUri?: string;
+}
+export interface CustomRuntimeConfig {
+    command: string[];
+    args?: string[];
 }
 export interface CustomContainerConfig {
     image: string;

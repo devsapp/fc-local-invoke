@@ -10,7 +10,7 @@ export declare function getUserIdAndGroupId(nasConfig: NasConfig | string): {
     groupId: any;
 };
 export declare function findHttpTrigger(triggerConfigList: TriggerConfig[]): TriggerConfig;
-export declare function parseDomainRoutePath(domainRoutePath: string): any;
+export declare function parseDomainRoutePath(domainRoutePath: string, customDomainConfigList: CustomDomainConfig[], httpTriggerPath: string): Promise<any[]>;
 export declare function getRoutePathsByDomainPath(customDomainConfigList: CustomDomainConfig[], domainName: string, routePath: string): string[];
 export declare function checkCustomDomainConfig(serviceName: string, functionName: string, customDomainConfigList: CustomDomainConfig[], domainName: string): void;
 export declare function includeHttpTrigger(triggerConfigList: TriggerConfig[]): boolean;
