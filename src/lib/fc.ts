@@ -21,7 +21,7 @@ async function detectLibraryFolders(dirName, libraryFolders, wrap, functionName)
   for (const libraryFolder of libraryFolders) {
     const libraryPath = path.join(dirName, libraryFolder);
     if (await fs.pathExists(libraryPath)) {
-      logger.warning(`${wrap}Fc detected that the library directory '${libraryFolder}' is not included in function '${functionName}' CodeUri.\n\t\tPlease make sure if it is the right configuration. if yes, ignore please.`);
+      logger.warn(`${wrap}Fc detected that the library directory '${libraryFolder}' is not included in function '${functionName}' CodeUri.\n\t\tPlease make sure if it is the right configuration. if yes, ignore please.`);
       return;
     }
   }

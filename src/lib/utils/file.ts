@@ -73,7 +73,7 @@ export async function eventPriority(argsData: any): Promise<string> {
   } else if (argsData['event-file']) {
     eventFile = path.resolve(process.cwd(), argsData['event-file']);
   } else if (argsData.event && fs.pathExistsSync(argsData.event)) {
-    logger.warning(StdoutFormatter.stdoutFormatter.warn('-e ${eventFile}', 'using -e to specify the event file path will be replaced by -f in the future.'));
+    logger.warn(StdoutFormatter.stdoutFormatter.warn('-e ${eventFile}', 'using -e to specify the event file path will be replaced by -f in the future.'));
     eventFile = path.resolve(process.cwd(), argsData.event);
   }
 

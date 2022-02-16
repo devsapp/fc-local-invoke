@@ -78,7 +78,7 @@ export function generateDebugEnv(runtime, debugPort, debugIde) {
     case 'dotnetcore2.1':
       return { 'DEBUG_OPTIONS': 'true' };
     default:
-      throw new Error('could not found runtime.');
+      throw new Error(`${runtime} does not support debug mode`);
   }
 }
 
