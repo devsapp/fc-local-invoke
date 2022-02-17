@@ -24,6 +24,7 @@ import * as fs from 'fs-extra';
 import StdoutFormatter from './lib/component/stdout-formatter';
 import express from 'express';
 import { isCustomContainerRuntime, isCustomRuntime } from './lib/common/model/runtime';
+import handlerCustom from './handler-custom';
 
 const app: any = express();
 
@@ -108,14 +109,7 @@ export default class FcLocalInvokeComponent {
     await fcCore.preExecute(new Docker(), argsData['clean-useless-image']);
 
     if (isCustomRuntime(functionConfig?.runtime)) {
-      const bootstrapFile = path.join(functionConfig?.codeUri || '', 'bootstrap');
-      try {
-        const { getFileEndOfLineSequence } = await core.loadComponent('devsapp/fc-core');
-        const fileEndOfLineSequence = await getFileEndOfLineSequence(bootstrapFile);
-        if (typeof fileEndOfLineSequence === 'string' && fileEndOfLineSequence !== 'LF') {
-          logger.warn(`The bootstrap line ending sequence was detected as ${fileEndOfLineSequence}, possibly affecting the function call. The supported format is LF.`);
-        }
-      } catch (_ex) { /* 不阻塞主程序运行 */ }
+      await handlerCustom(functionConfig);
     }
 
     return {
