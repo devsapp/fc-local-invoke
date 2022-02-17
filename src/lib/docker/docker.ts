@@ -14,7 +14,7 @@ import { FunctionConfig } from '../interface/fc-function';
 import * as nas from '../nas';
 import * as dockerOpts from './docker-opts';
 import { generatePwdFile } from '../utils/passwd';
-import { isCustomContainerRuntime, isCustomRuntime } from '../common/model/runtime';
+import { isCustomContainerRuntime } from '../common/model/runtime';
 import { getRootBaseDir } from '../devs';
 import { addEnv, resolveLibPathsFromLdConf } from '../env';
 import { findPathsOutofSharedPaths } from './docker-support';
@@ -209,16 +209,6 @@ function genDockerCmdOfCustomContainer(functionConfig: FunctionConfig): any {
   }
   return [];
 }
-
-function genDockerCmdOfCustomConfig(functionConfig: FunctionConfig): any {
-  const { command, args } = functionConfig.customRuntimeConfig || {};
-  if (command && args) {
-    return [...command, ...args];
-  } else if (command) {
-    return command;
-  }
-}
-
 // dockerode exec 在 windows 上有问题，用 exec 的 stdin 传递事件，当调用 stream.end() 时，会直接导致 exec 退出，且 ExitCode 为 null
 function genDockerCmdOfNonCustomContainer(functionConfig: FunctionConfig, httpMode: boolean, invokeInitializer = true, event = null): string[] {
   const cmd: string[] = ['-h', functionConfig.handler];
@@ -257,17 +247,7 @@ function genDockerCmdOfNonCustomContainer(functionConfig: FunctionConfig, httpMo
 export function generateDockerCmd(runtime: string, isLocalStartInit: boolean, functionConfig?: FunctionConfig, httpMode?: boolean, invokeInitializer = true, event = null): string[] {
   if (isCustomContainerRuntime(runtime)) {
     return genDockerCmdOfCustomContainer(functionConfig);
-  }
-  if (isCustomRuntime(runtime) && !_.isEmpty(functionConfig.customRuntimeConfig?.command)) {
-    const cmd = genDockerCmdOfCustomConfig(functionConfig);
-    if (!_.isEmpty(cmd)) {
-      if (isLocalStartInit) {
-        cmd.push('--server');
-      }
-      return cmd;
-    }
-  }
-  if (isLocalStartInit) {
+  } else if (isLocalStartInit) {
     return ['--server'];
   }
   return genDockerCmdOfNonCustomContainer(functionConfig, httpMode, invokeInitializer, event);
