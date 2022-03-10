@@ -110,6 +110,15 @@ export async function resolveNasConfigToMounts(baseDir: string, serviceName: str
   return convertNasMappingsToMounts(getRootBaseDir(baseDir), nasMappings);
 }
 
+export function resolveLayerToMounts(absOptDir) {
+  return {
+    Type: 'bind',
+    Source: absOptDir,
+    Target: '/opt',
+    ReadOnly: false
+  };
+}
+
 export async function resolveTmpDirToMount(absTmpDir: string): Promise<any> {
   if (!absTmpDir) { return {}; }
   return {
@@ -317,7 +326,12 @@ export async function generateDockerEnvs(creds: ICredentials, region: string, ba
   if (isCustomContainerRuntime(functionProps.runtime)) {
     return envs;
   }
-  return addEnv(envs, nasConfig);
+
+  return addEnv(envs, {
+    nasConfig,
+    layers: functionProps.layers,
+    runtime: functionProps.runtime,
+  });
 }
 
 export async function showDebugIdeTipsForVscode(serviceName: string, functionName: string, runtime: string, codeSource: string, debugPort?: number): Promise<void> {

@@ -25,6 +25,7 @@ import StdoutFormatter from './lib/component/stdout-formatter';
 import express from 'express';
 import { isCustomContainerRuntime, isCustomRuntime } from './lib/common/model/runtime';
 import handlerCustom from './handler-custom';
+import { loadLayer } from './lib/layer';
 
 const app: any = express();
 
@@ -111,6 +112,15 @@ export default class FcLocalInvokeComponent {
     if (isCustomRuntime(functionConfig?.runtime)) {
       await handlerCustom(functionConfig);
     }
+
+    await loadLayer({ // 加载 layer 的代码
+      credentials, region,
+      baseDir,
+      layers: functionConfig.layers,
+      runtime: functionConfig.runtime,
+      serviceName: serviceConfig.name,
+      functionName: functionConfig.name,
+    });
 
     return {
       serviceConfig,
