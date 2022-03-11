@@ -28,6 +28,7 @@ export async function loadLayer({
       const cacheLayerList = JSON.parse(fse.readFileSync(cacheLayerListFilePath, 'utf-8'));
       if (_.isEqual(cacheLayerList, cacheLayerList)) {
         logger.debug('Has cache, skip load layer');
+        loadLayerVM.stop();
         return;
       }
     } catch (_ex) { /**/ }
@@ -39,7 +40,6 @@ export async function loadLayer({
     loadLayerVM.fail();
     throw ex;
   }
-  
 }
 
 async function downloadLayer(layerCodeCachePath, layers, credentials, region) {
