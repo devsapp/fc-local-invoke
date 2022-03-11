@@ -15,7 +15,7 @@ import * as fs from 'fs-extra';
 import { v4 as uuidv4 } from 'uuid';
 import * as rimraf from 'rimraf';
 import extract = require("extract-zip");
-import * as tmpDir from 'temp-dir';
+import tmpDir from 'temp-dir';
 import { DEFAULT_NAS_PATH_SUFFIX } from '../devs';
 import { isCustomContainerRuntime } from '../common/model/runtime';
 import {writeDebugIdeConfigForVscode} from "../docker/docker";
