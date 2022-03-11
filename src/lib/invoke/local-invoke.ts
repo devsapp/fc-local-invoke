@@ -174,14 +174,14 @@ export default class LocalInvoke extends Invoke {
 
         const initResp = await requestUntilServerUp(initRequestOpts, this.functionConfig.initializationTimeout || 3);
         invokeInitializer = false;
-        logger.log(initResp.body);
+        console.log(initResp.body);
         logger.debug(`Response of initialization is: ${JSON.stringify(initResp)}`);
       }
 
       const requestOpts = generateInvokeRequestOpts(this.functionConfig.caPort, fcReqHeaders, event);
 
       const respOfCustomContainer = await requestUntilServerUp(requestOpts, this.functionConfig.timeout || 3);
-      logger.log(respOfCustomContainer.body);
+      console.log(respOfCustomContainer.body);
       // exit container
       if (!containerUp) {
         await docker.exitContainer(container);
