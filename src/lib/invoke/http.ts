@@ -283,7 +283,11 @@ export async function requestUntilServerUp(opts, timeout): Promise<any> {
             }
           };
         } else {
-          logger.log(`Fc Error: ${error}`, 'red');
+          let showError = error?.toString();
+          if (error?.message?.includes('socket hang up')) {
+            showError += '.  It may be that the port exposed by your code may not be the same as the caPort in s.yaml'
+          }
+          logger.log(`Fc Error: \n${showError}`, 'red');
           resp = {
             statusCode: 500,
             headers: {
