@@ -70,8 +70,9 @@ export function generateDebugEnv(runtime, debugPort, debugIde) {
       return { 'DEBUG_OPTIONS': `-m ptvsd --host 0.0.0.0 --port ${debugPort} --wait` };
 
     case 'java8':
-    case 'java11':
       return { 'DEBUG_OPTIONS': `-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=${debugPort}` };
+    case 'java11':
+      return { 'DEBUG_OPTIONS': `-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,quiet=y,address=*:${debugPort}` };
     case 'php7.2':
       console.log(`using remote_ip ${remoteIp}`);
       return { 'XDEBUG_CONFIG': `remote_enable=1 remote_autostart=1 remote_port=${debugPort} remote_host=${remoteIp}` };
