@@ -2,6 +2,12 @@ import { NasConfig, ServiceConfig } from '../interface/fc-service';
 import { FunctionConfig } from '../interface/fc-function';
 import { ICredentials } from '../../common/entity';
 export declare function resolveNasConfigToMounts(baseDir: string, serviceName: string, nasConfig: NasConfig, nasBaseDir: string): Promise<any>;
+export declare function resolveLayerToMounts(absOptDir: any): {
+    Type: string;
+    Source: any;
+    Target: string;
+    ReadOnly: boolean;
+};
 export declare function resolveTmpDirToMount(absTmpDir: string): Promise<any>;
 export declare function resolveDebuggerPathToMount(debuggerPath: string): Promise<any>;
 export declare function resolveCodeUriToMount(absCodeUri: string, readOnly?: boolean): Promise<any>;

@@ -31,6 +31,7 @@ export default class Invoke {
     protected tmpDirMount?: any;
     protected debuggerMount?: any;
     protected passwdMount?: any;
+    protected layerMount: any;
     protected mounts?: any;
     protected nasMappingsMount?: any;
     protected creds: ICredentials;

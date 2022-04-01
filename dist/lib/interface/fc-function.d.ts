@@ -17,6 +17,7 @@ export interface FunctionConfig {
     instanceType?: string;
     codeUri?: string;
     originalCodeUri?: string;
+    layers?: string[];
 }
 export interface CustomRuntimeConfig {
     command: string[];
