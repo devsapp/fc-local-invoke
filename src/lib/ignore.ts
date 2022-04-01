@@ -73,6 +73,7 @@ function selectIgnored(runtime) {
     return ['.s/python'];
   case 'python2.7':
   case 'python3':
+  case 'python3.9':
 
     return ['node_modules'];
   case 'php7.2':

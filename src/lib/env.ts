@@ -14,7 +14,8 @@ const sysLibs: string[] = [
   '/lib',
   '/lib/x86_64-linux-gnu',
   '/python/lib/python2.7/site-packages',
-  '/python/lib/python3.6/site-packages'
+  '/python/lib/python3.6/site-packages',
+  '/python/lib/python3.9/site-packages',
 ];
 
 const fcLibs: string[] = [
@@ -40,7 +41,8 @@ const fcPaths: string[] = [
 
 const pythonPaths: string[] = [
   '/python/lib/python2.7/site-packages',
-  '/python/lib/python3.6/site-packages'
+  '/python/lib/python3.6/site-packages',
+  '/python/lib/python3.9/site-packages',
 ];
 
 const funPaths: string[] = [
@@ -128,6 +130,8 @@ function genLayerEnvs(envs, runtime: string) {
     envs['PYTHONUSERBASE'] = `${PYTHONUSERBASE}:/opt/python/lib/python2.7/site-packages:/opt/python`;
   } else if (runtime === 'python3') {
     envs['PYTHONUSERBASE'] = `${PYTHONUSERBASE}:/opt/python/lib/python3.6/site-packages:/opt/python`;
+  } else if (runtime === 'python3.9') {
+    envs['PYTHONUSERBASE'] = `${PYTHONUSERBASE}:/opt/python/lib/python3.9/site-packages:/opt/python`;
   }
   return envs;
 }

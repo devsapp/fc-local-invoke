@@ -26,8 +26,8 @@ export function generateDockerDebugOpts(runtime, debugPort, debugIde) {
   const exposedPort = `${debugPort}/tcp`;
 
   if (debugIde === IDE_PYCHARM) {
-    if (runtime !== 'python2.7' && runtime !== 'python3') {
-      throw new Error(`${IDE_PYCHARM} debug config only support for runtime [python2.7, python3]`);
+    if (!['python2.7', 'python3', 'python3.9'].includes(runtime)) {
+      throw new Error(`${IDE_PYCHARM} debug config only support for runtime [python2.7, python3, python3.9]`);
     } else {
       return {};
     }
@@ -64,6 +64,7 @@ export function generateDebugEnv(runtime, debugPort, debugIde) {
       return { 'DEBUG_OPTIONS': `--debug-brk=${debugPort}` };
     case 'python2.7':
     case 'python3':
+    case 'python3.9':
       if (debugIde === IDE_PYCHARM) {
         return {};
       }
@@ -130,6 +131,7 @@ export async function generateVscodeDebugConfig(serviceName, functionName, runti
       ]
     };
   case 'python3':
+  case 'python3.9':
   case 'python2.7':
     return {
       'version': '0.2.0',

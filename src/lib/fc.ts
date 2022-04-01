@@ -12,6 +12,7 @@ const runtimeTypeMapping: any = {
   'nodejs14': ['node_modules', '.s/root'],
   'python2.7': ['.s/python', '.s/root'],
   'python3': ['.s/python', '.s/root'],
+  'python3.9': ['.s/python', '.s/root'],
   'php7.2': ['extension', 'vendor', '.s/root']
 };
 
