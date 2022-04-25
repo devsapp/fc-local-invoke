@@ -11,11 +11,10 @@ export const DEFAULT_BUILD_ARTIFACTS_PATH_SUFFIX: string = path.join('.s', 'buil
 export const DEFAULT_NAS_PATH_SUFFIX: string = path.join('.s', 'nas');
 const DEFAULT_LOCAL_TMP_PATH_SUFFIX: string = path.join('.s', 'tmp', 'local');
 
-
-
 export function getRootBaseDir(baseDir: string): string {
   const idx = baseDir.indexOf(DEFAULT_BUILD_ARTIFACTS_PATH_SUFFIX);
-  if (idx !== -1) { // exist
+  if (idx !== -1) {
+    // exist
     return baseDir.substring(0, idx);
   }
   return baseDir;
@@ -41,7 +40,9 @@ function getBaseDir(devsPath: string): string {
 }
 
 export function detectTmpDir(devsPath: string, tmpDir?: string) {
-  if (tmpDir) { return tmpDir; }
+  if (tmpDir) {
+    return tmpDir;
+  }
 
   const baseDir = getBaseDir(devsPath);
   return path.join(baseDir, DEFAULT_LOCAL_TMP_PATH_SUFFIX);
@@ -51,7 +52,9 @@ export async function updateCodeUriWithBuildPath(baseDir: string, functionConfig
   const buildBasePath: string = path.join(baseDir, DEFAULT_BUILD_ARTIFACTS_PATH_SUFFIX);
   if (!fs.pathExistsSync(buildBasePath) || fs.lstatSync(buildBasePath).isFile() || isCustomContainerRuntime(functionConfig.runtime)) {
     functionConfig.originalCodeUri = functionConfig.codeUri;
-    functionConfig.codeUri = path.join(baseDir, functionConfig.codeUri);
+    if (functionConfig.codeUri) {
+      functionConfig.codeUri = path.join(baseDir, functionConfig.codeUri);
+    }
     return functionConfig;
   }
 
