@@ -23,8 +23,8 @@
   },
   "autoInstall": false,
   "scripts": {
-    "start": "npm run watch",
-    "watch": "npm run prebuild && tsc -w",
+    "start": "npm run prebuild && npm run watch",
+    "watch": "tsc -w",
     "prebuild": "npm i rimraf && rimraf package-lock.json && rimraf dist && rimraf node_modules && npm i && ex -sc '15i|//@ts-ignore' -cx node_modules/draftlog/index.d.ts",
     "build": "ncc build src/index.ts -m -e @serverless-devs/core -o dist",
     "postbuild": "rimraf package-lock.json",
