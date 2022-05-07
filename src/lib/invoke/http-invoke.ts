@@ -16,9 +16,9 @@ import * as dockerOpts from '../docker/docker-opts';
 import { startContainer } from '../docker/docker';
 import { validateSignature, parseOutputStream, getHttpRawBody, generateHttpParams, parseHttpTriggerHeaders, validateHeader, getFcReqHeaders, requestUntilServerUp, generateInitRequestOpts, generateRequestOpts } from './http';
 import { v4 as uuidv4 } from 'uuid';
-import {isCustomContainerRuntime, isCustomRuntime} from '../common/model/runtime';
+import { isCustomContainerRuntime, isCustomRuntime } from '../common/model/runtime';
 import logger from '../../common/logger';
-import {ICredentials} from "../../common/entity";
+import { ICredentials } from "../../common/entity";
 
 const FC_HTTP_PARAMS: string = 'x-fc-http-params';
 

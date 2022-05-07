@@ -44,7 +44,7 @@ export function normalizeMultiValues(maps) {
     return Object.entries(maps)
       .reduce((acc, [key, val]) =>
         Object.assign(acc, { [key]: Array.isArray(val) ? val : [val] }),
-      {});
+        {});
   }
 
   return {};
@@ -94,7 +94,7 @@ export async function validateSignature(req, res, method, creds: ICredentials) {
 
   if (signature !== clientSignature) {
     res.status(500);
-    res.send(JSON.stringify({message: `Signature doesn't match, request signature is ${clientSignature}, but server signature is ${signature}`}));
+    res.send(JSON.stringify({ message: `Signature doesn't match, request signature is ${clientSignature}, but server signature is ${signature}` }));
     return false;
   }
 
@@ -232,7 +232,7 @@ export function validateHeader(headerKey, headerValue) {
 }
 
 export function getFcReqHeaders(headers, reqeustId, envs) {
-  const fcHeaders = {};
+  const fcHeaders = { ...headers };
   // fcHeaders['connection'] = headers['connection'] ? headers['connection'] : 'keep-alive';
   fcHeaders['content-type'] = headers['content-type'] ? headers['content-type'] : 'application/octet-stream';
   fcHeaders['x-fc-request-id'] = headers['x-fc-request-id'] ? headers['x-fc-request-id'] : reqeustId;
