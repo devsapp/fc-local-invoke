@@ -9,7 +9,7 @@ export declare function filterFunctionResponseAndExecutionInfo(response: any): [
 export declare function parseResponse(responseString: any): any;
 export declare function parseOutputStream(outputStream: any): any;
 export declare function validateHeader(headerKey: any, headerValue: any): boolean;
-export declare function getFcReqHeaders(headers: any, reqeustId: any, envs: any): {};
+export declare function getFcReqHeaders(headers: any, reqeustId: any, envs: any): any;
 export declare function requestUntilServerUp(opts: any, timeout: any): Promise<any>;
 export declare function generateInitRequestOpts(req: any, port: any, fcHeaders: any): {
     method: string;
