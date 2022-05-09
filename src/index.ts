@@ -77,9 +77,10 @@ export default class FcLocalInvokeComponent {
     const projectName: string = project?.projectName;
     const { region } = properties;
 
-    const parsedArgs: {[key: string]: any} = core.commandParse(inputs, {
+    const parsedArgs: { [key: string]: any } = core.commandParse(inputs, {
       boolean: ['help'],
-      alias: { help: 'h' } });
+      alias: { help: 'h' }
+    });
 
     const argsData: any = parsedArgs?.data || {};
     if (argsData?.help) {
@@ -101,7 +102,7 @@ export default class FcLocalInvokeComponent {
     const functionConfig: FunctionConfig = await updateCodeUriWithBuildPath(baseDir, properties?.function, serviceConfig.name);
     if (functionConfig && (isCustomContainerRuntime(functionConfig?.runtime) || isCustomRuntime(functionConfig?.runtime))) {
       functionConfig.caPort = functionConfig.caPort || DEFAULT_CA_PORT;
-      DEFAULT_SERVER_PORT = _.isUndefined(functionConfig.caPort) ? DEFAULT_SERVER_PORT: _.toNumber(functionConfig.caPort) + 1;
+      DEFAULT_SERVER_PORT = _.isUndefined(functionConfig.caPort) ? DEFAULT_SERVER_PORT : _.toNumber(functionConfig.caPort) + 1;
     }
     const triggerConfigList: TriggerConfig[] = properties?.triggers;
     const customDomainConfigList: CustomDomainConfig[] = properties?.customDomains;
@@ -161,10 +162,11 @@ export default class FcLocalInvokeComponent {
       core.help(START_HELP_INFO);
       return;
     }
-    const parsedArgs: {[key: string]: any} = core.commandParse(inputs, {
+    const parsedArgs: { [key: string]: any } = core.commandParse(inputs, {
       boolean: ['debug', 'help'],
-      string: ['custom-domain'],
-      alias: { help: 'h',
+      string: ['custom-domain', 'sdk-version'],
+      alias: {
+        help: 'h',
         config: 'c',
         'debug-port': 'd',
       },
@@ -198,6 +200,8 @@ export default class FcLocalInvokeComponent {
       debugArgs,
     } = getDebugOptions(argsData);
     const userDefinedServerPort: number = (argsData && argsData['server-port']) ? _.toInteger(argsData['server-port']) : null;
+    const sdkVersion = argsData['sdk-version'] || '';
+    logger.debug(`sdkVersion: ${sdkVersion}`);
 
     // s start --custom auto 兼容 s start auto
     const invokeName: string = argsData?.['custom-domain'] || nonOptionsArgs[0];
@@ -228,7 +232,7 @@ export default class FcLocalInvokeComponent {
     });
 
     const eager = !_.isNil(debugPort);
-    await registerHttpTriggerByRoutes(credentials, region, devsPath, baseDir, app, router, userDefinedServerPort || DEFAULT_SERVER_PORT, httpTrigger, serviceConfig, functionConfig, routePaths, domainName, debugPort, debugIde, debuggerPath, debugArgs, nasBaseDir, eager);
+    await registerHttpTriggerByRoutes(credentials, region, devsPath, baseDir, app, router, userDefinedServerPort || DEFAULT_SERVER_PORT, httpTrigger, serviceConfig, functionConfig, routePaths, domainName, debugPort, debugIde, debuggerPath, debugArgs, nasBaseDir, eager, sdkVersion);
     this.startExpress(app, userDefinedServerPort || DEFAULT_SERVER_PORT);
 
     showTipsWithDomainIfNecessary(customDomainConfigList, domainName);
@@ -259,9 +263,10 @@ export default class FcLocalInvokeComponent {
       core.help(INVOKE_HELP_INFO);
       return;
     }
-    const parsedArgs: {[key: string]: any} = core.commandParse(inputs, {
+    const parsedArgs: { [key: string]: any } = core.commandParse(inputs, {
       boolean: ['debug'],
-      alias: { help: 'h',
+      alias: {
+        help: 'h',
         config: 'c',
         mode: 'm',
         event: 'e',
