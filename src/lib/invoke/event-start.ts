@@ -7,7 +7,7 @@ import { ServiceConfig } from '../interface/fc-service';
 import { FunctionConfig } from '../interface/fc-function';
 import { TriggerConfig } from '../interface/fc-trigger';
 import logger from '../../common/logger';
-import {ICredentials} from "../../common/entity";
+import { ICredentials } from "../../common/entity";
 export default class EventStart extends Invoke {
   private envs: any;
   private opts: any;
@@ -17,7 +17,7 @@ export default class EventStart extends Invoke {
 
   async init() {
     await super.init();
-    this.envs = await docker.generateDockerEnvs(this.creds, this.region, this.baseDir, this.serviceName,   this.serviceConfig, this.functionName, this.functionConfig,  this.debugPort, null, this.nasConfig, false, this.debugIde, this.debugArgs);
+    this.envs = await docker.generateDockerEnvs(this.creds, this.region, this.baseDir, this.serviceName, this.serviceConfig, this.functionName, this.functionConfig, this.debugPort, null, this.nasConfig, false, this.debugIde, this.debugArgs);
     this.containerName = dockerOpts.generateContainerName(this.serviceName, this.functionName, this.debugPort);
 
     let filters = dockerOpts.generateContainerNameFilter(this.containerName, true);
@@ -30,7 +30,7 @@ export default class EventStart extends Invoke {
       const jobs = [];
       for (let c of containers) {
         const container = await docker.getContainer(c.Id);
-        jobs.push(container.stop());
+        jobs.push(container?.stop());
         logger.debug(`stopping container ${c.Id}`);
       }
       await Promise.all(jobs);

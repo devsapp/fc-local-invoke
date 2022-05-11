@@ -76,7 +76,7 @@ export default class HttpInvoke extends Invoke {
       // https://github.com/alibaba/funcraft/issues/527
       require('promise.prototype.finally').shim();
 
-      oldRunner.stop().catch(reason => {
+      oldRunner?.stop().catch(reason => {
         logger.error(`stop container error, reason is ${reason}`);
       }).finally(() => {
         // release lock

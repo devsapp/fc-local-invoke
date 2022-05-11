@@ -17,11 +17,11 @@ import * as rimraf from 'rimraf';
 import extract = require("extract-zip");
 import tmpDir from 'temp-dir';
 import { DEFAULT_NAS_PATH_SUFFIX } from '../devs';
-import { isCustomContainerRuntime } from '../common/model/runtime';
-import {writeDebugIdeConfigForVscode} from "../docker/docker";
-import {ICredentials} from "../../common/entity";
-import {isFalseValue} from "../utils/value";
-import {isIgnored, isIgnoredInCodeUri} from "../ignore";
+import { hackCustomRuntime, isCustomContainerRuntime } from '../common/model/runtime';
+import { writeDebugIdeConfigForVscode } from "../docker/docker";
+import { ICredentials } from "../../common/entity";
+import { isFalseValue } from "../utils/value";
+import { isIgnored, isIgnoredInCodeUri } from "../ignore";
 import * as fse from 'fs-extra';
 import { genLayerCodeCachePath, supportLayer } from '../layer';
 
@@ -74,7 +74,7 @@ export default class Invoke {
   protected passwdMount?: any;
   protected layerMount: any;
   protected mounts?: any;
-  protected nasMappingsMount? : any;
+  protected nasMappingsMount?: any;
   protected creds: ICredentials;
   protected fcCore: any;
 
@@ -113,10 +113,10 @@ export default class Invoke {
   async init() {
     this.fcCore = await core.loadComponent('devsapp/fc-core');
     this.nasConfig = this.serviceConfig?.nasConfig;
-    this.dockerUser = await dockerOpts.resolveDockerUser({ nasConfig: this.nasConfig });
+    this.dockerUser = await dockerOpts.resolveDockerUser({ runtime: this.runtime, nasConfig: this.nasConfig });
     this.nasMounts = await docker.resolveNasConfigToMounts(this.baseDir, this.serviceName, this.nasConfig, this.nasBaseDir || path.join(this.baseDir, DEFAULT_NAS_PATH_SUFFIX));
     this.unzippedCodeDir = await processZipCodeIfNecessary(this.codeUri);
-    this.codeMount = await docker.resolveCodeUriToMount(this.unzippedCodeDir || this.codeUri);
+    this.codeMount = await docker.resolveCodeUriToMount(this.unzippedCodeDir || this.codeUri, hackCustomRuntime(this.runtime).readOnly);
     // TODO: 支持 nas mapping yaml file
     // this.nasMappingsMount = await docker.resolveNasYmlToMount(this.baseDir, this.serviceName);
     this.tmpDirMount = (!process.env.DISABLE_BIND_MOUNT_TMP_DIR || isFalseValue(process.env.DISABLE_BIND_MOUNT_TMP_DIR)) ? await docker.resolveTmpDirToMount(this.tmpDir) : null;
