@@ -35,12 +35,14 @@ export default class HttpInvoke extends Invoke {
   private runner: any;
   private watcher?: any;
   private limitedHostConfig?: any;
+  private disableWatcher: boolean;
   constructor(creds: ICredentials, region: string, baseDir: string, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, triggerConfig?: TriggerConfig, debugPort?: number, debugIde?: any, tmpDir?: string, authType?: string, endpointPrefix?: string, debuggerPath?: any, debugArgs?: any, nasBaseDir?: string) {
     super(creds, region, baseDir, serviceConfig, functionConfig, triggerConfig, debugPort, debugIde, tmpDir, debuggerPath, debugArgs, nasBaseDir);
 
     this.isAnonymous = authType === 'ANONYMOUS' || authType === 'anonymous';
     this.endpointPrefix = endpointPrefix;
     this._invokeInitializer = true;
+    this.disableWatcher = process.env.disableWatcher === 'close';
     process.on('SIGINT', () => {
       this.cleanUnzippedCodeDir();
     });
@@ -102,7 +104,7 @@ export default class HttpInvoke extends Invoke {
           if (!this.runner) {
             logger.debug('acquire invoke lock success, ready to create runner');
 
-            if (!this.watcher && !isCustomContainerRuntime(this.runtime)) {
+            if (!this.disableWatcher && !this.watcher && !isCustomContainerRuntime(this.runtime)) {
               // add file ignore when auto reloading
               const ign = await this.getCodeIgnore();
               this.watcher = watch(this.codeUri, {
