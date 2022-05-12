@@ -9,22 +9,22 @@ import { ensureTmpDir } from '../utils/path';
 import HttpInvoke from '../invoke/http-invoke';
 import ApiInvoke from '../invoke/api-invoke';
 import { setCORSHeaders } from '../cors';
-import {ICredentials} from "../../common/entity";
+import { ICredentials } from "../../common/entity";
 
 const SERVER_CLOSE_TIMEOUT: number = 3000;
 
 
-export async function registerHttpTriggerByRoutes(creds: ICredentials, region: string, devsPath: string, baseDir: string, app: any, router: any, serverPort: number, httpTrigger: TriggerConfig, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, routePaths?: string[], domainName?: string, debugPort?: number, debugIde?: any, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string, eager?: boolean) {
+export async function registerHttpTriggerByRoutes(creds: ICredentials, region: string, devsPath: string, baseDir: string, app: any, router: any, serverPort: number, httpTrigger: TriggerConfig, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, routePaths: string[], domainName: string, debugPort: number, debugIde: any, debuggerPath: string, debugArgs: any, nasBaseDir: string, eager: boolean, sdkVersion: string) {
   if (_.isEmpty(routePaths)) {
-    await registerSingleHttpTrigger(creds, region, devsPath, baseDir, app, router, serverPort, httpTrigger, serviceConfig, functionConfig, null, domainName, debugPort, debugIde, eager, debuggerPath, debugArgs, nasBaseDir);
+    await registerSingleHttpTrigger(creds, region, devsPath, baseDir, app, router, serverPort, httpTrigger, serviceConfig, functionConfig, null, domainName, debugPort, debugIde, eager, debuggerPath, debugArgs, nasBaseDir, sdkVersion);
   } else {
     for (const routePath of routePaths) {
-      await registerSingleHttpTrigger(creds, region, devsPath, baseDir, app, router, serverPort, httpTrigger, serviceConfig, functionConfig, routePath, domainName, debugPort, debugIde, eager, debuggerPath, debugArgs, nasBaseDir);
+      await registerSingleHttpTrigger(creds, region, devsPath, baseDir, app, router, serverPort, httpTrigger, serviceConfig, functionConfig, routePath, domainName, debugPort, debugIde, eager, debuggerPath, debugArgs, nasBaseDir, sdkVersion);
     }
   }
 }
 
-export async function registerSingleHttpTrigger(creds: ICredentials, region: string, devsPath: string, baseDir: string, app: any, router: any, serverPort: number, httpTrigger: TriggerConfig, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, routePath?: string, domainName?: string, debugPort?: number, debugIde?: string, eager = false, debuggerPath?: string, debugArgs?: any, nasBaseDir?: string) {
+export async function registerSingleHttpTrigger(creds: ICredentials, region: string, devsPath: string, baseDir: string, app: any, router: any, serverPort: number, httpTrigger: TriggerConfig, serviceConfig: ServiceConfig, functionConfig: FunctionConfig, routePath: string, domainName: string, debugPort: number, debugIde: string, eager = false, debuggerPath: string, debugArgs: any, nasBaseDir: string, sdkVersion: string) {
   const serviceName: string = serviceConfig.name;
   const functionName: string = functionConfig.name;
   const triggerName: string = httpTrigger.name;
@@ -36,7 +36,7 @@ export async function registerSingleHttpTrigger(creds: ICredentials, region: str
   logger.debug(`routePath: ${routePath}`);
 
   const isCustomDomain: any = routePath;
-  const httpTriggerPrefix: string = `/2016-08-15/proxy/${serviceName}/${functionName}`;
+  const httpTriggerPrefix: string = sdkVersion === '2016-08-15' ? `/2016-08-15/proxy/${serviceName}/${functionName}` : '';
 
   const customDomainPrefix: string = routePath;
 

@@ -57,7 +57,7 @@ export async function parseDomainRoutePath(domainRoutePath: string, customDomain
       domainName = customDomainConfigList[0].domainName;
     } else {
       const domainNames = customDomainConfigList.map(({ domainName }): string => domainName);
-      const systemKey = `system [${httpTriggerPath}]`;
+      const systemKey = `system[2016-08-15] [${httpTriggerPath}]`;
       domainNames.unshift(systemKey);
       domainName = (await inquirer.prompt({
         type: 'list',
