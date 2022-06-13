@@ -323,7 +323,7 @@ export default class FcLocalInvokeComponent {
       const tmpDir = await ensureTmpDir(null, devsPath, serviceName, functionName);
       const eventStart = new EventStart(credentials, region, baseDir, serviceConfig, functionConfig, null, debugPort, debugIde, tmpDir, null, null, nasBaseDir);
       await eventStart.init();
-      logger.log(`Invoke with server mode done, please open a new terminal and execute 's exec ${projectName} -- invoke' to reuse the container.`, 'yellow');
+      logger.log(`Invoke with server mode done, please open a new terminal and execute 's ${projectName} local invoke' to reuse the container.`, 'yellow');
       logger.log('If you want to quit the server, please press Ctrl^C', 'yellow');
     } else {
       const event: string = await eventPriority(argsData);
