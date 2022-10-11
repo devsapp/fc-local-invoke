@@ -7,9 +7,9 @@ import * as fs from 'fs-extra';
 /**
  * 默认的bootstrap，环境变量3者生效顺序：环境变量>自定义参数>默认bootstrap
  * @param functionConfig FunctionConfig
- * @returns 
+ * @returns
  */
-export default async function(functionConfig: FunctionConfig) {
+export default async function (functionConfig: FunctionConfig) {
   // 存在环境变量则退出，不检测
   if (!_.isEmpty(functionConfig.environmentVariables?.AGENT_SCRIPT)) {
     return;
@@ -27,15 +27,15 @@ export default async function(functionConfig: FunctionConfig) {
     const { command, args } = functionConfig.customRuntimeConfig;
     let fileStr = `#!/bin/bash\n${command.join(' ')}`;
     if (!_.isEmpty(args)) {
-      fileStr += ` ${args.join(' ')}`
+      fileStr += ` ${args.join(' ')}`;
     }
     // 写入文件
     const filePath = path.join(codeUri, '.s', '.fc_local_gen_bootstrap');
     await fs.remove(filePath); // 多次执行报错没有权限
-    await fse.outputFile(filePath, fileStr, { mode: 0x755 })
+    await fse.outputFile(filePath, fileStr, { mode: 0x755 });
     // 写入环境变量
     functionConfig.environmentVariables = Object.assign(
-      functionConfig.environmentVariables || {}, { AGENT_SCRIPT: '.s/.fc_local_gen_bootstrap' }
+      functionConfig.environmentVariables || {}, { AGENT_SCRIPT: '.s/.fc_local_gen_bootstrap' },
     );
     return;
   }

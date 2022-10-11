@@ -32,7 +32,7 @@ const app: any = express();
 const MIN_SERVER_PORT = 7000;
 const MAX_SERVER_PORT = 8000;
 
-const DEFAULT_CA_PORT: number = 9000;
+const DEFAULT_CA_PORT = 9000;
 let DEFAULT_SERVER_PORT: number = parseInt(_.toString(Math.random() * (MAX_SERVER_PORT - MIN_SERVER_PORT + 1) + MIN_SERVER_PORT), 10);
 const SUPPORTED_MODES: string[] = ['api', 'server', 'normal'];
 
@@ -79,7 +79,7 @@ export default class FcLocalInvokeComponent {
 
     const parsedArgs: { [key: string]: any } = core.commandParse(inputs, {
       boolean: ['help'],
-      alias: { help: 'h' }
+      alias: { help: 'h' },
     });
 
     const argsData: any = parsedArgs?.data || {};
@@ -115,7 +115,8 @@ export default class FcLocalInvokeComponent {
     }
 
     await loadLayer({ // 加载 layer 的代码
-      credentials, region,
+      credentials,
+      region,
       baseDir,
       layers: functionConfig.layers,
       runtime: functionConfig.runtime,
@@ -210,7 +211,7 @@ export default class FcLocalInvokeComponent {
 
     const serviceName: string = serviceConfig.name;
     const functionName: string = functionConfig.name;
-    const httpTriggerPath: string = `http://localhost/2016-08-15/proxy/${serviceName}/${functionName}`;
+    const httpTriggerPath = `http://localhost/2016-08-15/proxy/${serviceName}/${functionName}`;
 
     await ensureFilesModified(devsPath);
 

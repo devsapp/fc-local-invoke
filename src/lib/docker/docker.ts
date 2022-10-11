@@ -643,6 +643,7 @@ export async function startContainer(opts: any, outputStream?: any, errorStream?
         AttachStderr: true,
         WorkingDir: cwd
       };
+      // @ts-ignore
       if (cmd !== []) {
         options.Cmd = cmd;
       }
