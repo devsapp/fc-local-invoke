@@ -5,10 +5,6 @@ import logger from '../common/logger';
 
 const { fse, loadComponent, unzip } = core;
 
-export const supportLayer = (runtime: string) => {
-  return runtime.startsWith('nodejs') || runtime.startsWith('python');
-}
-
 export const genLayerCodeCachePath = (baseDir, serviceName, functionName) =>
   path.join(baseDir, '.s', 'opt', serviceName, functionName);
 
@@ -16,7 +12,7 @@ export async function loadLayer({
   credentials, region, layers, baseDir, runtime,
   serviceName, functionName,
 }) {
-  if (!supportLayer(runtime) || _.isEmpty(layers)) {
+  if (_.isEmpty(layers)) {
     logger.debug('Skip load layer');
     return;
   }

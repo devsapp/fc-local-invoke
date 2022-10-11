@@ -23,7 +23,7 @@ import {ICredentials} from "../../common/entity";
 import {isFalseValue} from "../utils/value";
 import {isIgnored, isIgnoredInCodeUri} from "../ignore";
 import * as fse from 'fs-extra';
-import { genLayerCodeCachePath, supportLayer } from '../layer';
+import { genLayerCodeCachePath } from '../layer';
 
 
 
@@ -124,7 +124,7 @@ export default class Invoke {
     this.passwdMount = await docker.resolvePasswdMount();
 
     // 支持 layer
-    if (!_.isEmpty(this.functionConfig.layers) && supportLayer(this.runtime)) {
+    if (!_.isEmpty(this.functionConfig.layers)) {
       const layerCachePath = genLayerCodeCachePath(this.baseDir, this.serviceName, this.functionName);
       this.layerMount = docker.resolveLayerToMounts(layerCachePath);
     }

@@ -265,6 +265,7 @@ function genCustomContainerLocalStartOpts(name, mounts, cmd, envs, limitedHostCo
     Image: imageName,
     name
   };
+  // @ts-ignore
   if (cmd !== []) {
     opts.Cmd = cmd;
   }
