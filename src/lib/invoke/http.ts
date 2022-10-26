@@ -73,6 +73,7 @@ export function generateHttpParams(req, pathPrefix) {
     host
   };
 
+  logger.debug(`http invoke params: ${JSON.stringify(params)}`);
   const encodedParams = Buffer.from(JSON.stringify(params)).toString('base64');
 
   return encodedParams;
