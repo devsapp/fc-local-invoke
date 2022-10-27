@@ -48,14 +48,22 @@ async function downloadLayer(layerCodeCachePath, layers, credentials, region) {
       props: { region, arn: layerArn }
     };
     const cachePath = await fcLayer.download(inputs);
-    await unzip(cachePath, layerCodeCachePath, {
-      filter: file => {
-        if (filters.includes(file.path)) {
-          return false;
+    for (let i = 0; i < 3; i++) {
+      try {
+        await unzip(cachePath, layerCodeCachePath, {
+          filter: file => {
+            if (filters.includes(file.path)) {
+              return false;
+            }
+            filters.push(file.path);
+            return true;
+          },
+        });
+      } catch (err) {
+        if (i === 2) {
+          logger.error(`unzip layer ${layerArn} error: ${err.message}`);
         }
-        filters.push(file.path);
-        return true;
-      },
-    });
+      }
+    }
   }
 }
