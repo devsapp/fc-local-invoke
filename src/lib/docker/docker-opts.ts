@@ -1,4 +1,5 @@
 import * as _ from 'lodash';
+import * as fs from 'fs-extra';
 import * as core from '@serverless-devs/core';
 import { addEnv } from '../env';
 import logger from '../../common/logger';
@@ -59,6 +60,10 @@ function transformSourcePathOfMount(mountsObj) {
   if (!_.isEmpty(mountsObj)) {
 
     const replaceMounts = Object.assign({}, mountsObj);
+    try {
+      fs.ensureDirSync(mountsObj.Source);
+    } catch (ex) { /* 不阻塞程序运行 */}
+    // TODO: 需要在这个位置确保文件夹存在
     // C:\\Users\\image_crawler\\code -> /c/Users/image_crawler/code
     const sourcePath = mountsObj.Source.split(':').join('');
     const lowerFirstAndReplace = _.lowerFirst(sourcePath.split('\\').join('/'));
