@@ -14,6 +14,7 @@ import logger from '../../common/logger';
 import { v4 as uuidv4 } from 'uuid';
 import * as streams from 'memory-streams';
 import {ICredentials} from "../../common/entity";
+import { goDockerRunCmdNeedPushStart } from '../docker/docker';
 
 export default class ApiInvoke extends Invoke {
   private envs: any;
@@ -99,7 +100,7 @@ export default class ApiInvoke extends Invoke {
       const opts = await dockerOpts.generateLocalInvokeOpts(this.runtime,
         containerName,
         this.mounts,
-        this.cmd,
+        goDockerRunCmdNeedPushStart(this.runtime, this.cmd),
         this.debugPort,
         this.envs,
         limitedHostConfig,
@@ -109,7 +110,6 @@ export default class ApiInvoke extends Invoke {
         event,
         outputStream,
         errorStream);
-
       this.response(outputStream, errorStream, res);
     }
   }

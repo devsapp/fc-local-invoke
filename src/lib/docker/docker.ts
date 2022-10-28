@@ -14,7 +14,7 @@ import { FunctionConfig } from '../interface/fc-function';
 import * as nas from '../nas';
 import * as dockerOpts from './docker-opts';
 import { generatePwdFile } from '../utils/passwd';
-import { isCustomContainerRuntime } from '../common/model/runtime';
+import { isCustomContainerRuntime, isGoRuntime } from '../common/model/runtime';
 import { getRootBaseDir } from '../devs';
 import { addEnv, resolveLibPathsFromLdConf } from '../env';
 import { findPathsOutofSharedPaths } from './docker-support';
@@ -253,10 +253,21 @@ function genDockerCmdOfNonCustomContainer(functionConfig: FunctionConfig, httpMo
   return cmd;
 }
 
+
+export function goDockerRunCmdNeedPushStart(runtime: string, cmd: string[]) {
+  if (isGoRuntime(runtime)) {
+    cmd.push('--start');
+  }
+  return cmd;
+}
+
 export function generateDockerCmd(runtime: string, isLocalStartInit: boolean, functionConfig?: FunctionConfig, httpMode?: boolean, invokeInitializer = true, event = null): string[] {
   if (isCustomContainerRuntime(runtime)) {
     return genDockerCmdOfCustomContainer(functionConfig);
   } else if (isLocalStartInit) {
+    if (isGoRuntime(runtime)) {
+      return ['--server', '--start'];
+    }
     return ['--server'];
   }
   return genDockerCmdOfNonCustomContainer(functionConfig, httpMode, invokeInitializer, event);
@@ -530,7 +541,7 @@ export async function createAndRunContainer(opts): Promise<any> {
 }
 
 export async function execContainer(container, opts, outputStream, errorStream): Promise<void> {
-  outputStream = process.stdout;
+  outputStream = process.stdout; // 复用镜像时
   errorStream = process.stderr;
   const logStream = await container.logs({
     stdout: true,
@@ -649,7 +660,7 @@ export async function startContainer(opts: any, outputStream?: any, errorStream?
       }
 
       // docker exec
-      const encryptedOpts: any = encryptDockerOpts(opts);
+      const encryptedOpts: any = encryptDockerOpts(options);
       logger.debug(`docker exec opts: ${JSON.stringify(encryptedOpts, null, 4)}`);
 
       const exec = await container.exec(options);

@@ -8,3 +8,7 @@ export function isCustomContainerRuntime(runtime: string): boolean {
 export function isCustomRuntime(runtime: string): boolean {
   return runtime === 'custom';
 }
+
+export function isGoRuntime(runtime: string): boolean {
+  return runtime === 'go1';
+}

@@ -231,6 +231,9 @@ export default class FcLocalInvokeComponent {
     const router = express.Router({
       strict: true,
     });
+    if (functionConfig.runtime === 'go1') {
+      logger.log('The local command for go1 runtime is in public test. If you have any questions, welcome to join DingTalk Group: 33947367', 'yellow');
+    }
 
     const eager = !_.isNil(debugPort);
     await registerHttpTriggerByRoutes(credentials, region, devsPath, baseDir, app, router, userDefinedServerPort || DEFAULT_SERVER_PORT, httpTrigger, serviceConfig, functionConfig, routePaths, domainName, debugPort, debugIde, debuggerPath, debugArgs, nasBaseDir, eager, sdkVersion);
@@ -295,6 +298,9 @@ export default class FcLocalInvokeComponent {
       return {
         status: 'failed',
       };
+    }
+    if (functionConfig.runtime === 'go1') {
+      logger.log('The local command for go1 runtime is in public test. If you have any questions, welcome to join DingTalk Group: 33947367', 'yellow');
     }
 
     const {
