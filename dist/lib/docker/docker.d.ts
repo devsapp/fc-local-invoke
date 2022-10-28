@@ -15,6 +15,7 @@ export declare function resolvePasswdMount(): Promise<any>;
 export declare function listContainers(options: any): Promise<any>;
 export declare function getContainer(containerId: any): Promise<any>;
 export declare function renameContainer(container: any, name: string): Promise<any>;
+export declare function goDockerRunCmdNeedPushStart(runtime: string, cmd: string[]): string[];
 export declare function generateDockerCmd(runtime: string, isLocalStartInit: boolean, functionConfig?: FunctionConfig, httpMode?: boolean, invokeInitializer?: boolean, event?: any): string[];
 export declare function generateFunctionEnvs(functionConfig: FunctionConfig): any;
 export declare function generateRamdomContainerName(): string;
