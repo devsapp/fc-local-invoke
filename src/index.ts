@@ -182,7 +182,7 @@ export default class FcLocalInvokeComponent {
       };
     }
     if (_.isEmpty(triggerConfigList)) {
-      logger.error('Please local invoke http function with \'start\' method in fc-local-invoke component.');
+      logger.error('Please local invoke non-http function with \'invoke\' method in fc-local-invoke component.');
       return {
         status: 'failed',
       };
@@ -288,7 +288,7 @@ export default class FcLocalInvokeComponent {
       };
     }
     if (!_.isEmpty(triggerConfigList) && includeHttpTrigger(triggerConfigList)) {
-      logger.error('Please local invoke non-http function with \'invoke\' method in fc-local-invoke component.');
+      logger.error('Please local invoke http function with \'start\' method in fc-local-invoke component.');
       return {
         status: 'failed',
       };
