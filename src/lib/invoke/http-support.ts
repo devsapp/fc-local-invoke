@@ -30,7 +30,7 @@ export async function registerSingleHttpTrigger(creds: ICredentials, region: str
   const triggerName: string = httpTrigger.name;
   logger.debug(`serviceName: ${serviceName}`);
   logger.debug(`functionName: ${functionName}`);
-  logger.debug(`tiggerName: ${triggerName}`);
+  logger.debug(`triggerName: ${triggerName}`);
   logger.debug(`httpTrigger: ${yaml.dump(httpTrigger)}`);
   logger.debug(`domainName: ${domainName}`);
   logger.debug(`routePath: ${routePath}`);
