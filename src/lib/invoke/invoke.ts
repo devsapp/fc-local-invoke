@@ -17,32 +17,13 @@ import * as rimraf from 'rimraf';
 import extract = require("extract-zip");
 import tmpDir from 'temp-dir';
 import { DEFAULT_NAS_PATH_SUFFIX } from '../devs';
-import { isCustomContainerRuntime } from '../common/model/runtime';
-import {writeDebugIdeConfigForVscode} from "../docker/docker";
-import {ICredentials} from "../../common/entity";
-import {isFalseValue} from "../utils/value";
-import {isIgnored, isIgnoredInCodeUri} from "../ignore";
+import { isCustomContainerRuntime, isCustomRuntime } from '../common/model/runtime';
+import { writeDebugIdeConfigForVscode } from "../docker/docker";
+import { ICredentials } from "../../common/entity";
+import { isFalseValue } from "../utils/value";
+import { isIgnored, isIgnoredInCodeUri } from "../ignore";
 import * as fse from 'fs-extra';
 import { genLayerCodeCachePath } from '../layer';
-
-
-
-function isZipArchive(codeUri) {
-  return codeUri ? codeUri.endsWith('.zip') || codeUri.endsWith('.jar') || codeUri.endsWith('.war') : false;
-}
-
-async function processZipCodeIfNecessary(codeUri: string): Promise<string> {
-
-  if (!isZipArchive(codeUri)) { return null; }
-
-  const tmpCodeDir: string = path.join(tmpDir, uuidv4());
-
-  await fs.ensureDir(tmpCodeDir);
-
-  logger.log(`codeUri is a zip format, will unzipping to ${tmpCodeDir}`);
-  await extract(codeUri, { dir: tmpCodeDir });
-  return tmpCodeDir;
-}
 
 export default class Invoke {
   protected baseDir: string;
@@ -74,7 +55,7 @@ export default class Invoke {
   protected passwdMount?: any;
   protected layerMount: any;
   protected mounts?: any;
-  protected nasMappingsMount? : any;
+  protected nasMappingsMount?: any;
   protected creds: ICredentials;
   protected fcCore: any;
 
@@ -110,12 +91,32 @@ export default class Invoke {
     await this.afterInvoke();
   }
 
+  async processZipCodeIfNecessary(codeUri: string): Promise<string> {
+    let skipZipArchive = codeUri.endsWith('.jar');
+    if (skipZipArchive && isCustomRuntime(this.runtime)) {
+      const command = _.get(this.functionConfig, 'customRuntimeConfig.command', []);
+      const args = _.get(this.functionConfig, 'customRuntimeConfig.args', []);
+      const commandStr = `${_.join(command, ' ')} ${_.join(args, ' ')}`;
+      skipZipArchive = !commandStr.includes('java -jar');
+    }
+    const isZipArchive = codeUri ? codeUri.endsWith('.zip') || codeUri.endsWith('.war') : false;
+    if (!isZipArchive || skipZipArchive) { return null; }
+
+    const tmpCodeDir: string = path.join(tmpDir, uuidv4());
+
+    await fs.ensureDir(tmpCodeDir);
+
+    logger.log(`codeUri is a zip format, will unzipping to ${tmpCodeDir}`);
+    await extract(codeUri, { dir: tmpCodeDir });
+    return tmpCodeDir;
+  }
+
   async init() {
     this.fcCore = await core.loadComponent('devsapp/fc-core');
     this.nasConfig = this.serviceConfig?.nasConfig;
     this.dockerUser = await dockerOpts.resolveDockerUser({ nasConfig: this.nasConfig });
     this.nasMounts = await docker.resolveNasConfigToMounts(this.baseDir, this.serviceName, this.nasConfig, this.nasBaseDir || path.join(this.baseDir, DEFAULT_NAS_PATH_SUFFIX));
-    this.unzippedCodeDir = await processZipCodeIfNecessary(this.codeUri);
+    this.unzippedCodeDir = await this.processZipCodeIfNecessary(this.codeUri);
     this.codeMount = await docker.resolveCodeUriToMount(this.unzippedCodeDir || this.codeUri);
     // TODO: 支持 nas mapping yaml file
     // this.nasMappingsMount = await docker.resolveNasYmlToMount(this.baseDir, this.serviceName);
