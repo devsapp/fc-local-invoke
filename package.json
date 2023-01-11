@@ -27,9 +27,8 @@
     "ln": "ln -s $(pwd)/dist ~/.s/components/devsapp.cn/devsapp/fc-local-invoke/dist",
     "start": "npm run prebuild && npm run watch",
     "watch": "tsc -w",
-    "prebuild": "npm i rimraf && rimraf package-lock.json && rimraf dist && rimraf node_modules && npm i && ex -sc '15i|//@ts-ignore' -cx node_modules/draftlog/index.d.ts",
+    "prebuild": "npm i rimraf && rimraf dist && npm i && ex -sc '15i|//@ts-ignore' -cx node_modules/draftlog/index.d.ts",
     "build": "ncc build src/index.ts -m -e @serverless-devs/core -o dist",
-    "postbuild": "rimraf package-lock.json",
     "lint": "f2elint scan",
     "fix": "f2elint fix"
   },
