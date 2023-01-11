@@ -17,8 +17,8 @@ export function getUserIdAndGroupId(nasConfig: NasConfig | string) {
 
   if (_.isString(nasConfig) && nasConfig.toLowerCase() === 'auto') {
     return {
-      userId: 10003,
-      groupId: 10003
+      userId: 0,
+      groupId: 0,
     };
   }
   return {

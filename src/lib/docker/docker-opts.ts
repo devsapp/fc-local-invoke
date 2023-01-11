@@ -5,19 +5,16 @@ import logger from '../../common/logger';
 import { getUserIdAndGroupId } from '../definition';
 import nestedObjectAssign from 'nested-object-assign';
 import { generateDockerDebugOpts } from '../debug';
-import {isCustomContainerRuntime, isCustomRuntime} from '../common/model/runtime';
+import { isCustomContainerRuntime, isCustomRuntime } from '../common/model/runtime';
 import { mark } from '../profile';
-
-const NAS_UID: number = 10003;
-const NAS_GID: number = 10003;
 
 // Not Run stage:
 //  for linux platform, it will always use process.uid and process.gid
 //  for mac and windows platform, it will always use 0
 // Run stage:
 //  for linux platform, it will always use process.uid and process.gid
-//  for mac and windows platform, it will use 10003 if no nasConfig, otherwise it will use nasConfig userId
-export function resolveDockerUser({nasConfig, stage = 'run'}): string {
+//  for mac and windows platform, it will use 0 if no nasConfig, otherwise it will use nasConfig userId
+export function resolveDockerUser({ nasConfig, stage = 'run' }): string {
   let { userId, groupId } = getUserIdAndGroupId(nasConfig);
 
   if (process.platform === 'linux') {
@@ -25,17 +22,8 @@ export function resolveDockerUser({nasConfig, stage = 'run'}): string {
     userId = process.getuid();
     groupId = process.getgid();
   } else {
-    if (stage === 'run') {
-      if (userId === -1 || userId === undefined) {
-        userId = NAS_UID;
-      }
-      if (groupId === -1 || groupId === undefined) {
-        groupId = NAS_GID;
-      }
-    } else {
-      userId = 0;
-      groupId = 0;
-    }
+    userId = 0;
+    groupId = 0;
   }
 
   return `${userId}:${groupId}`;
@@ -129,13 +117,13 @@ export function generateContainerName(serviceName: string, functionName: string,
 
 export async function generateLocalStartOpts(runtime, name, mounts, cmd, envs, limitedHostConfig, { debugPort, dockerUser, debugIde = null, imageName, caPort = 9000 }) {
   if (isCustomContainerRuntime(runtime)) {
-    return genCustomContainerLocalStartOpts(name, mounts, cmd, envs, limitedHostConfig,imageName, caPort);
+    return genCustomContainerLocalStartOpts(name, mounts, cmd, envs, limitedHostConfig, imageName, caPort);
   }
 
-  return await genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, debugPort, envs,limitedHostConfig, dockerUser, debugIde, caPort);
+  return await genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, debugPort, envs, limitedHostConfig, dockerUser, debugIde, caPort);
 }
 
-async function genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, debugPort, envs, limitedHostConfig, dockerUser, debugIde,caPort = 9000) {
+async function genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, debugPort, envs, limitedHostConfig, dockerUser, debugIde, caPort = 9000) {
 
   const hostOpts = {
     HostConfig: {
@@ -197,7 +185,7 @@ async function genNonCustomContainerLocalStartOpts(runtime, name, mounts, cmd, d
     hostOpts,
     debugOpts,
     ioOpts);
-  
+
   const encryptedOpts: any = encryptDockerOpts(opts);
   logger.debug(`docker options: ${JSON.stringify(encryptedOpts, null, '  ')}`);
   return opts;
@@ -233,7 +221,7 @@ function supportCustomBootstrapFile(runtime, envs) {
 }
 
 export function resolveMockScript(runtime: string): string {
-  if(runtime=='python3.9'){
+  if (runtime === 'python3.9') {
     return `/var/fc/runtime/python3/mock`;
   }
   return `/var/fc/runtime/${runtime}/mock`;
