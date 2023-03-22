@@ -8,15 +8,15 @@ import { generateDockerDebugOpts } from '../debug';
 import { isCustomContainerRuntime, isCustomRuntime } from '../common/model/runtime';
 import { mark } from '../profile';
 
-const NAS_UID: number = 10003;
-const NAS_GID: number = 10003;
+const NAS_UID: number = 0;
+const NAS_GID: number = 0;
 
 // Not Run stage:
 //  for linux platform, it will always use process.uid and process.gid
 //  for mac and windows platform, it will always use 0
 // Run stage:
 //  for linux platform, it will always use process.uid and process.gid
-//  for mac and windows platform, it will use 10003 if no nasConfig, otherwise it will use nasConfig userId
+//  for mac and windows platform, it will use 0 if no nasConfig, otherwise it will use nasConfig userId
 export function resolveDockerUser({ nasConfig, stage = 'run' }): string {
   let { userId, groupId } = getUserIdAndGroupId(nasConfig);
 
