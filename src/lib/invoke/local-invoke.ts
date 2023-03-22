@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { isCustomContainerRuntime, isCustomRuntime } from '../common/model/runtime';
 import logger from '../../common/logger';
 import { ICredentials } from '../../common/entity';
-import { goDockerRunCmdNeedPushStart } from '../docker/docker';
+import { dockerRunCmdNeedPushStart } from '../docker/docker';
 
 export default class LocalInvoke extends Invoke {
   private reuse: boolean;
@@ -84,7 +84,7 @@ export default class LocalInvoke extends Invoke {
         this.runtime,
         this.containerName,
         this.mounts,
-        goDockerRunCmdNeedPushStart(this.runtime, this.cmd),
+        dockerRunCmdNeedPushStart(this.runtime, this.cmd),
         this.debugPort,
         this.envs,
         limitedHostConfig,

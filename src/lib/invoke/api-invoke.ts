@@ -5,7 +5,7 @@ import * as docker from '../docker/docker'
 import * as dockerOpts from '../docker/docker-opts';
 import * as core from '@serverless-devs/core';
 import { parseOutputStream, getFcReqHeaders, validateSignature, getHttpRawBody, generateInitRequestOpts, requestUntilServerUp, generateInvokeRequestOpts } from './http';
-import {isCustomContainerRuntime, isCustomRuntime} from '../common/model/runtime';
+import { isCustomContainerRuntime, isCustomRuntime } from '../common/model/runtime';
 
 import { ServiceConfig } from '../interface/fc-service';
 import { FunctionConfig } from '../interface/fc-function';
@@ -13,8 +13,8 @@ import { TriggerConfig } from '../interface/fc-trigger';
 import logger from '../../common/logger';
 import { v4 as uuidv4 } from 'uuid';
 import * as streams from 'memory-streams';
-import {ICredentials} from "../../common/entity";
-import { goDockerRunCmdNeedPushStart } from '../docker/docker';
+import { ICredentials } from "../../common/entity";
+import { dockerRunCmdNeedPushStart } from '../docker/docker';
 
 export default class ApiInvoke extends Invoke {
   private envs: any;
@@ -25,7 +25,7 @@ export default class ApiInvoke extends Invoke {
 
   async init() {
     await super.init();
-    this.envs = await docker.generateDockerEnvs(this.creds, this.region, this.baseDir, this.serviceName, this.serviceConfig, this.functionName, this.functionConfig,  this.debugPort, null, this.nasConfig, true, this.debugIde, this.debugArgs);
+    this.envs = await docker.generateDockerEnvs(this.creds, this.region, this.baseDir, this.serviceName, this.serviceConfig, this.functionName, this.functionConfig, this.debugPort, null, this.nasConfig, true, this.debugIde, this.debugArgs);
   }
 
   async doInvoke(req, res) {
@@ -100,7 +100,7 @@ export default class ApiInvoke extends Invoke {
       const opts = await dockerOpts.generateLocalInvokeOpts(this.runtime,
         containerName,
         this.mounts,
-        goDockerRunCmdNeedPushStart(this.runtime, this.cmd),
+        dockerRunCmdNeedPushStart(this.runtime, this.cmd),
         this.debugPort,
         this.envs,
         limitedHostConfig,

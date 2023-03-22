@@ -14,14 +14,14 @@ import { FunctionConfig } from '../interface/fc-function';
 import * as nas from '../nas';
 import * as dockerOpts from './docker-opts';
 import { generatePwdFile } from '../utils/passwd';
-import { isCustomContainerRuntime, isGoRuntime } from '../common/model/runtime';
+import { isCustomContainerRuntime, dockerRunCmdNeedPushStartRuntime } from '../common/model/runtime';
 import { getRootBaseDir } from '../devs';
 import { addEnv, resolveLibPathsFromLdConf } from '../env';
 import { findPathsOutofSharedPaths } from './docker-support';
 import { processorTransformFactory } from '../error-processor';
 import { ICredentials } from '../../common/entity';
 import { generateVscodeDebugConfig, generateDebugEnv } from '../debug';
-import {encryptDockerOpts} from "./docker-opts";
+import { encryptDockerOpts } from "./docker-opts";
 
 const isWin: boolean = process.platform === 'win32';
 draftlog.into(console);
@@ -254,8 +254,8 @@ function genDockerCmdOfNonCustomContainer(functionConfig: FunctionConfig, httpMo
 }
 
 
-export function goDockerRunCmdNeedPushStart(runtime: string, cmd: string[]) {
-  if (isGoRuntime(runtime)) {
+export function dockerRunCmdNeedPushStart(runtime: string, cmd: string[]) {
+  if (dockerRunCmdNeedPushStartRuntime(runtime)) {
     cmd.push('--start');
   }
   return cmd;
@@ -265,7 +265,7 @@ export function generateDockerCmd(runtime: string, isLocalStartInit: boolean, fu
   if (isCustomContainerRuntime(runtime)) {
     return genDockerCmdOfCustomContainer(functionConfig);
   } else if (isLocalStartInit) {
-    if (isGoRuntime(runtime)) {
+    if (dockerRunCmdNeedPushStartRuntime(runtime)) {
       return ['--server', '--start'];
     }
     return ['--server'];
@@ -369,14 +369,14 @@ export async function writeDebugIdeConfigForVscode(baseDir: string, serviceName:
   const vscodeDebugConfig = await generateVscodeDebugConfig(serviceName, functionName, runtime, codeSource, debugPort);
   if (fs.pathExistsSync(configJsonFilePath) && fs.lstatSync(configJsonFilePath).isFile()) {
     // 文件已存在则对比文件内容与待写入内容，若不一致提示用户需要手动写入 launch.json
-    const configInJsonFile = JSON.parse(await fs.readFile(configJsonFilePath, {encoding: 'utf8'}));
+    const configInJsonFile = JSON.parse(await fs.readFile(configJsonFilePath, { encoding: 'utf8' }));
     if (_.isEqual(configInJsonFile, vscodeDebugConfig)) { return; }
     logger.warn(`File: ${configJsonFilePath} already exists, please overwrite it with the following config.`);
     await showDebugIdeTipsForVscode(serviceName, functionName, runtime, codeSource, debugPort);
     return;
   }
   try {
-    await fs.writeFile(configJsonFilePath, JSON.stringify(vscodeDebugConfig, null, '  '), {encoding: 'utf8', flag: 'w'});
+    await fs.writeFile(configJsonFilePath, JSON.stringify(vscodeDebugConfig, null, '  '), { encoding: 'utf8', flag: 'w' });
   } catch (e) {
     logger.warn(`Write ${configJsonFilePath} failed.`);
     await showDebugIdeTipsForVscode(serviceName, functionName, runtime, codeSource, debugPort);
@@ -588,7 +588,7 @@ function _handlerContainerError(err, caPort: string) {
   const message = err?.message || '';
   const DOCKER_CAPORT_ERROR_MESSAGE = 'port is already allocated';
 
-  if(_.trim(message).lastIndexOf(DOCKER_CAPORT_ERROR_MESSAGE) > -1) {
+  if (_.trim(message).lastIndexOf(DOCKER_CAPORT_ERROR_MESSAGE) > -1) {
     return JSON.stringify({
       message,
       tips: `Your server expose port is no the same as caPort: ${caPort} \nMore details, please read document: https://help.aliyun.com/document_detail/209242.html`
@@ -596,7 +596,7 @@ function _handlerContainerError(err, caPort: string) {
   } else {
     return message;
   }
-} 
+}
 
 // outputStream, errorStream used for http invoke
 // because agent is started when container running and exec could not receive related logs
