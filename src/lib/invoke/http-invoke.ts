@@ -13,7 +13,7 @@ import * as rimraf from 'rimraf';
 import Invoke from './invoke';
 import * as docker from '../docker/docker';
 import * as dockerOpts from '../docker/docker-opts';
-import { goDockerRunCmdNeedPushStart, startContainer } from '../docker/docker';
+import { dockerRunCmdNeedPushStart, startContainer } from '../docker/docker';
 import { validateSignature, parseOutputStream, getHttpRawBody, generateHttpParams, parseHttpTriggerHeaders, validateHeader, getFcReqHeaders, requestUntilServerUp, generateInitRequestOpts, generateRequestOpts } from './http';
 import { v4 as uuidv4 } from 'uuid';
 import { isCustomContainerRuntime, isCustomRuntime } from '../common/model/runtime';
@@ -193,7 +193,7 @@ export default class HttpInvoke extends Invoke {
           this.runtime,
           this.containerName,
           this.mounts,
-          goDockerRunCmdNeedPushStart(this.runtime, cmd),
+          dockerRunCmdNeedPushStart(this.runtime, cmd),
           this.debugPort,
           envs,
           this.limitedHostConfig,

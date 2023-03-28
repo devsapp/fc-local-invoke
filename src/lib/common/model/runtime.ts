@@ -6,9 +6,9 @@ export function isCustomContainerRuntime(runtime: string): boolean {
 }
 
 export function isCustomRuntime(runtime: string): boolean {
-  return runtime === 'custom';
+  return runtime && (runtime === 'custom' || runtime.startsWith('custom.'));
 }
 
-export function isGoRuntime(runtime: string): boolean {
-  return runtime === 'go1';
+export function dockerRunCmdNeedPushStartRuntime(runtime: string): boolean {
+  return ['go1', 'python3.10'].includes(runtime);
 }
