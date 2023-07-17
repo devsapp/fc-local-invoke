@@ -52,7 +52,7 @@ export async function updateCodeUriWithBuildPath(baseDir: string, functionConfig
   const buildBasePath: string = path.join(baseDir, DEFAULT_BUILD_ARTIFACTS_PATH_SUFFIX);
   if (!fs.pathExistsSync(buildBasePath) || fs.lstatSync(buildBasePath).isFile() || isCustomContainerRuntime(functionConfig.runtime)) {
     functionConfig.originalCodeUri = functionConfig.codeUri;
-    if (functionConfig.codeUri) {
+    if (core.lodash.isString(functionConfig.codeUri) && !path.isAbsolute(functionConfig.codeUri)) {
       functionConfig.codeUri = path.join(baseDir, functionConfig.codeUri);
     }
     return functionConfig;
