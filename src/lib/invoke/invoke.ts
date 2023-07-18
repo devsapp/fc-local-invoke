@@ -171,11 +171,19 @@ export default class Invoke {
 
   async setDebugIdeConfig() {
     if (this.debugPort && this.debugIde) {
+      let codeUrl = null;
+      if (this.functionConfig?.originalCodeUri) {
+        if (path.isAbsolute(this.functionConfig.originalCodeUri)) {
+          codeUrl = this.functionConfig.originalCodeUri;
+        } else {
+          codeUrl = path.join(this.baseDir, this.functionConfig.originalCodeUri)
+        }
+      }
       if (this.debugIde.toLowerCase() === 'vscode') {
         // try to write .vscode/config.json
-        await writeDebugIdeConfigForVscode(this.baseDir, this.serviceName, this.functionName, this.runtime, this.functionConfig?.originalCodeUri ? path.join(this.baseDir, this.functionConfig.originalCodeUri) : null, this.debugPort);
+        await writeDebugIdeConfigForVscode(this.baseDir, this.serviceName, this.functionName, this.runtime, codeUrl, this.debugPort);
       } else if (this.debugIde.toLowerCase() === 'pycharm') {
-        await docker.showDebugIdeTipsForPycharm(this.functionConfig?.originalCodeUri ? path.join(this.baseDir, this.functionConfig.originalCodeUri) : null, this.debugPort);
+        await docker.showDebugIdeTipsForPycharm(codeUrl, this.debugPort);
       }
     }
   }
