@@ -56,6 +56,7 @@ export function generateDebugEnv(runtime, debugPort, debugIde) {
 
   switch (runtime) {
     case 'nodejs14':
+    case 'nodejs16':
     case 'nodejs12':
     case 'nodejs10':
     case 'nodejs8':
@@ -111,6 +112,7 @@ export async function generateVscodeDebugConfig(serviceName, functionName, runti
       ]
     };
   case 'nodejs14':
+  case 'nodejs16':
   case 'nodejs12':
   case 'nodejs10':
   case 'nodejs8':
