@@ -10,6 +10,7 @@ const runtimeTypeMapping: any = {
   'nodejs10': ['node_modules', '.s/root'],
   'nodejs12': ['node_modules', '.s/root'],
   'nodejs14': ['node_modules', '.s/root'],
+  'nodejs16': ['node_modules', '.s/root'],
   'python2.7': ['.s/python', '.s/root'],
   'python3': ['.s/python', '.s/root'],
   'python3.9': ['.s/python', '.s/root'],
